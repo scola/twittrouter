@@ -1,0 +1,15 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2011 OpenWrt.org
+
+START=98
+STOP=98
+
+start() {
+    echo "starting twittrouter..."
+    /usr/bin/twittrouter -f /var/run/twittrouter.pid
+}
+
+stop() {
+    echo "twittrouter stopped."
+    kill -9 `cat /var/run/twittrouter.pid`
+}

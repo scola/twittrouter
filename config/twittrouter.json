@@ -1,8 +1,8 @@
 {
-    "TwitterID":"wushaozheng",
-    "CONSUMER_KEY":"5JuvuLiIIxC997IRNlADw",
-    "CONSUMER_SECRET":"tmR64sE5qObPe3cNxhzpb3zZMoLKivAqsVlfpJtlM0",
-    "OAUTH_TOKEN":"596360126-d0i2HewbLRpl7VRMOjPIJBfLmaAL7eVFGSBaCtY8",
-    "OAUTH_TOKEN_SECRET":"fzX8fsyHQ3x02uxj6WwPMN3cu1gA42B5gJbpEmDcAYr6n",
-    "whitelist":"00:00:00:00:00:00|d8:57:ef:33:86:93|00:04:23:97:20:26|04:46:65:53:00:0b"
+    "TwitterID":"your-twitter-username",
+    "CONSUMER_KEY":"",
+    "CONSUMER_SECRET":"",
+    "OAUTH_TOKEN":"",
+    "OAUTH_TOKEN_SECRET":"",
+    "whitelist":"00:00:00:00:00:00|d8:57:ef:33:86:93b"
 }
