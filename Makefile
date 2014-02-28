@@ -22,12 +22,14 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=twittrouter
 PKG_VERSION:=0.1.0
 PKG_RELEASE:=1
+#PKG_RELEASE:=$(PKG_SOURCE_VERSION)
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/scola/twittrouter.git
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_MAINTAINER:=Scola <shaozheng.wu@gmail.com>
+#PKG_SOURCE_PROTO:=git
+#PKG_SOURCE_URL:=https://github.com/scola/twittrouter.git
+#PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+#PKG_SOURCE_VERSION:=e24bbb456e88f652afae0b05cb8299e59ff41ee2
+#PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+#PKG_MAINTAINER:=Scola <shaozheng.wu@gmail.com>
 
 PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
@@ -37,7 +39,7 @@ PKG_BUILD_PARALLEL:=1
 # This specifies the directory where we're going to build the program.
 # The root build directory, $(BUILD_DIR), is by default the build_mipsel
 # directory in your OpenWrt SDK directory
-#PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
+PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -46,9 +48,9 @@ include $(INCLUDE_DIR)/package.mk
 define Package/twittrouter
 	SECTION:=net
 	CATEGORY:=Network
-	DEPENDS:=libcurl +liboauth
-	TITLE:=twittrouter replace the wifi password verification with twitter friends
-    URL:=https://github.com/scola/twittrouter
+	TITLE:=verify twitter friends on router
+	URL:=https://github.com/scola/twittrouter
+	DEPENDS:=+liboauth
 endef
 
 define Package/twittrouter/description
@@ -61,14 +63,14 @@ define Package/twittrouter/conffiles
 endef
 # Specify what needs to be done to prepare for building the package.
 # In our case, we need to copy the source files to the build directory.
-# This is NOT the default.  The default uses the PKG_SOURCE_URL and the
+# This is NOT the default. The default uses the PKG_SOURCE_URL and the
 # PKG_SOURCE which is not defined here to download the source from the web.
 # In order to just build a simple program that we have just written, it is
 # much easier to do it this way.
-#define Build/Prepare
-#	mkdir -p $(PKG_BUILD_DIR)
-#	$(CP) ./src/* $(PKG_BUILD_DIR)/
-#endef
+define Build/Prepare
+	mkdir -p $(PKG_BUILD_DIR)
+	$(CP) ./src/* $(PKG_BUILD_DIR)/
+endef
 
 # We do not need to define Build/Configure or Build/Compile directives
 # The defaults are appropriate for compiling a simple program such as this one
@@ -77,15 +79,15 @@ endef
 # the twittrouter executable, install it by copying it to the /bin directory on
 # the router. The $(1) variable represents the root directory on the router running
 # OpenWrt. The $(INSTALL_DIR) variable contains a command to prepare the install
-# directory if it does not already exist.  Likewise $(INSTALL_BIN) contains the
+# directory if it does not already exist. Likewise $(INSTALL_BIN) contains the
 # command to copy the binary file from its current location (in our case the build
 # directory) to the install directory.
 define Package/twittrouter/install
 	$(INSTALL_DIR) $(1)/usr/bin $(1)/www $(1)/etc/init.d $(1)/etc/config
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/twittrouter $(1)/usr/bin/
-    $(INSTALL_BIN) ./html/* $(1)/www
-    $(INSTALL_BIN) ./config/twittrouter.init $(1)/etc/init.d/twittrouter
-    $(INSTALL_CONF) ./config/twittrouter.json $(1)/etc/config/twittrouter.json
+	$(INSTALL_BIN) ./html/* $(1)/www
+	$(INSTALL_BIN) ./config/twittrouter.init $(1)/etc/init.d/twittrouter
+	$(INSTALL_CONF) ./config/twittrouter.json $(1)/etc/config/twittrouter.json
 endef
 
 # This line executes the necessary commands to compile our program.
@@ -93,4 +95,3 @@ endef
 # line calls BuildPackage which in turn actually uses this information to
 # build a package.
 $(eval $(call BuildPackage,twittrouter))
-
