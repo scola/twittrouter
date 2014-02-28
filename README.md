@@ -51,4 +51,4 @@ Thanks
 ------
 Thanks to the developer of [goagent](https://code.google.com/p/goagent/),[shadowsocks](http://www.shadowsocks.org/),[dnsproxy](https://github.com/phuslu/dnsproxy), [bestroutetb](https://github.com/ashi009/bestroutetb) and other bloggers
 
-![verification-page.png](https://raw.github.com/scola/twittrouter/master/verification-page.png)
+![verification-page.png](https://raw.github.com/scola/twittrouter-python/master/verification-page.png)
