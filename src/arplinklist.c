@@ -106,11 +106,8 @@ void scan_arp_and_block(char *arpOutput) {
             } else {
                 InsertEmptyLink(arpList,ip,BLOCKED_FLAG);
                 sprintf(iptable_block_cmd,"iptables -t nat -I PREROUTING -s %s -p tcp --dport 80 -j REDIRECT --to-ports %s", ip, servPort);
-                //stmc
-                //char *block_cmd_output = exec_cmd_shell(iptable_block_cmd);
-                //if(!block_cmd_output) free(block_cmd_output);
-                //stmc
-                printf("%s\n", iptable_block_cmd);
+                char *block_cmd_output = exec_cmd_shell(iptable_block_cmd);
+                if(!block_cmd_output) free(block_cmd_output);
                 printf("blocked ip addr %s \n",ip);
             }
         }

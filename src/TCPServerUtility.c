@@ -142,7 +142,6 @@ static void handle_http_post(int clntSocket, char *username) {
                     sprintf(iptable_unblock_cmd,"iptables -t nat -D PREROUTING -s %s -p tcp --dport 80 -j REDIRECT --to-ports %s", sock_addr, servPort);
                     char *block_cmd_output = exec_cmd_shell(iptable_unblock_cmd);
                     if(!block_cmd_output) free(block_cmd_output);
-                    printf("%s\n", iptable_unblock_cmd);
                     printf("authed client ip address %s \n",sock_addr);
                     Update(sock_addr_node,OAUTHED_FLAG);
                 }

@@ -31,10 +31,10 @@ PKG_RELEASE:=1
 #PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 #PKG_MAINTAINER:=Scola <shaozheng.wu@gmail.com>
 
-PKG_INSTALL:=1
-PKG_FIXUP:=autoreconf
+#PKG_INSTALL:=1
+#PKG_FIXUP:=autoreconf
 
-PKG_BUILD_PARALLEL:=1
+#PKG_BUILD_PARALLEL:=1
 
 # This specifies the directory where we're going to build the program.
 # The root build directory, $(BUILD_DIR), is by default the build_mipsel
@@ -50,7 +50,7 @@ define Package/twittrouter
 	CATEGORY:=Network
 	TITLE:=verify twitter friends on router
 	URL:=https://github.com/scola/twittrouter
-	DEPENDS:=+liboauth
+	DEPENDS:=+liboauth +libpthread
 endef
 
 define Package/twittrouter/description
@@ -69,6 +69,7 @@ endef
 # much easier to do it this way.
 define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
+	mkdir -p $(INSTALL_DIR)/www/twittrouter
 	$(CP) ./src/* $(PKG_BUILD_DIR)/
 endef
 
@@ -83,8 +84,8 @@ endef
 # command to copy the binary file from its current location (in our case the build
 # directory) to the install directory.
 define Package/twittrouter/install
-	$(INSTALL_DIR) $(1)/usr/bin $(1)/www $(1)/etc/init.d $(1)/etc/config
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/twittrouter $(1)/usr/bin/
+	$(INSTALL_DIR) $(1)/usr/bin $(1)/www/twittrouter $(1)/etc/init.d $(1)/etc/config
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/twittrouter $(1)/usr/bin/
 	$(INSTALL_BIN) ./html/* $(1)/www
 	$(INSTALL_BIN) ./config/twittrouter.init $(1)/etc/init.d/twittrouter
 	$(INSTALL_CONF) ./config/twittrouter.json $(1)/etc/config/twittrouter.json
