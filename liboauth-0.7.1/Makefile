@@ -27,7 +27,7 @@ define Package/liboauth
 endef
 
 define Package/liboauth/description
- liboauth is a collection of POSIX-c functions implementing the OAuth Core RFC 5849 standard
+liboauth is a collection of POSIX-c functions implementing the OAuth Core RFC 5849 standard
 endef
 
 define Build/InstallDev

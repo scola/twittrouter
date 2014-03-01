@@ -11,7 +11,7 @@
 
 #define TWITTER_USERNAME_MAX_LEN 20
 
-#define DEFAULT_SERVER_DIR  "/www"
+#define DEFAULT_SERVER_DIR  "/www/twittrouter"
 #define DEFAULT_SERVER_PORT "9999"
 #define DEFAULT_CONFIG_PATH "/etc/config/twittrouter.json"
 

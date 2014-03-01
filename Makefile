@@ -69,7 +69,7 @@ endef
 # much easier to do it this way.
 define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
-	mkdir -p $(INSTALL_DIR)/www/twittrouter
+	mkdir -p $(PKG_INSTALL_DIR)/www/twittrouter
 	$(CP) ./src/* $(PKG_BUILD_DIR)/
 endef
 
@@ -86,7 +86,7 @@ endef
 define Package/twittrouter/install
 	$(INSTALL_DIR) $(1)/usr/bin $(1)/www/twittrouter $(1)/etc/init.d $(1)/etc/config
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/twittrouter $(1)/usr/bin/
-	$(INSTALL_BIN) ./html/* $(1)/www
+	$(INSTALL_BIN) ./html/* $(1)/www/twittrouter
 	$(INSTALL_BIN) ./config/twittrouter.init $(1)/etc/init.d/twittrouter
 	$(INSTALL_CONF) ./config/twittrouter.json $(1)/etc/config/twittrouter.json
 endef
