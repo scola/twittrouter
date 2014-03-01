@@ -30,9 +30,11 @@ static void create_thread(void *thread_func,void *threadArgs) {
 }
 
 int main(int argc, char *argv[]) {
+    int pid_flags = 0;
     char c;
     char *conf_path = DEFAULT_CONFIG_PATH;
     char *TwitterID = NULL;
+    char *pid_path = NULL;
 
     root = DEFAULT_SERVER_DIR;
     servPort = DEFAULT_SERVER_PORT;
@@ -61,6 +63,11 @@ int main(int argc, char *argv[]) {
             case 'h':
                 usage();
                 exit(EXIT_SUCCESS);
+                break;
+            case 'f':
+                pid_flags = 1;
+                pid_path = optarg;
+                break;
             default:
                 break;
         }
@@ -82,6 +89,11 @@ int main(int argc, char *argv[]) {
             usage();
             exit(EXIT_FAILURE);
         }
+    }
+
+    if (pid_flags)
+    {
+        demonize(pid_path);
     }
     //we need to create a thread to scan arp list and block some ip.
     arpList = CreatEmptyLink();
