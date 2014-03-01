@@ -13,7 +13,7 @@
 
 static const int MAXPENDING = 5; // Maximum outstanding connection requests
 
-static char* get_twitter_id(char *poststr, char *user) {
+static char* get_twitter_id(int clntSocket, char *poststr, char *user) {
     if(!poststr) return NULL;
     char *content_length = strstr(poststr, "Content-Length");
     if(!content_length) return NULL;
@@ -33,7 +33,22 @@ static char* get_twitter_id(char *poststr, char *user) {
     if (content_length_value[0] == '\0') return NULL;
 
     char *username = strstr(poststr,"uname=");
-    if (username == NULL) return NULL;
+    if (username == NULL) {
+        while(1) {
+            char buffer[BUFSIZE];    
+            ssize_t numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
+            if (numBytesRcvd < 0)
+                DieWithSystemMessage("recv() failed");
+            if (numBytesRcvd == 0) {
+                close(clntSocket);
+                return;
+            }
+            username = strstr(buffer,"uname=");
+            if (username) {
+                break;    
+            }
+        }    
+    }
     int j = 0;
     int length = atoi(content_length_value);
 
@@ -229,8 +244,10 @@ void HandleTCPClient(int clntSocket) {
     ssize_t numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
     if (numBytesRcvd < 0)
         DieWithSystemMessage("recv() failed");
-    if (numBytesRcvd == 0)
-        DieWithSystemMessage("Client disconnected upexpectedly");
+    if (numBytesRcvd == 0) {
+        close(clntSocket);
+        return;
+    }
     printf("**********recv start**********\n");
     printf("%s",buffer);
     printf("**********recv finished**********\n");
@@ -239,7 +256,7 @@ void HandleTCPClient(int clntSocket) {
     char friend[TWITTER_USERNAME_MAX_LEN] = {'\0',};
     char *reqline[3];
 
-    char *friend_id = get_twitter_id(buffer, friend);
+    char *friend_id = get_twitter_id(clntSocket, buffer, friend);
     reqline[0] = strtok (buffer, " \t\n");
     reqline[1] = strtok (NULL, " \t");
     reqline[2] = strtok (NULL, " \t\n");
