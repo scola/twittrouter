@@ -83,9 +83,6 @@ static void handle_http_get(int clntSocket, char* file) {
     int bytes_read;
     int fd;
 
-    if (strncmp(file, "/\0", 2) == 0)
-        file = "/BASEHTML.html";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...
-
     strcpy(path, root);
     strcpy(&path[strlen(root)], file);
     printf("file: %s\n", path);
@@ -250,6 +247,8 @@ void HandleTCPClient(int clntSocket) {
     {
         send(clntSocket, "HTTP/1.0 400 Bad Request\n", 25, 0);
     } else if (strncmp(reqline[0], "GET\0", 4)==0) {
+        if (!strstr(reqline[1], ".ico") && !strstr(reqline[1], ".png"))
+            reqline[1] = "/BASEHTML.html";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...
         handle_http_get(clntSocket, reqline[1]);
     } else if (strncmp(reqline[0], "POST\0", 5)==0){
         handle_http_post(clntSocket, friend_id);
