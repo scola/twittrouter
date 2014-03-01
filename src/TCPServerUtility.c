@@ -138,13 +138,12 @@ static void handle_http_post(int clntSocket, char *username) {
     char *friendship = access_token_request_data(username);
     if(friendship) {
         if(parser_friendship_json(friendship)) {
-
+            handle_http_get(clntSocket, "/VERIFY_OK.html");
             struct sockaddr_storage localAddr;
             socklen_t addrSize = sizeof(localAddr);
             //char addrBuffer[INET6_ADDRSTRLEN];
             if (getpeername(clntSocket, (struct sockaddr *) &localAddr, &addrSize) < 0)
                 DieWithSystemMessage("getsockname() failed");
-            //char *sock_addr = PrintSocketAddress((struct sockaddr *) &localAddr, stdout);
             char *sock_addr = PrintSocketAddress((struct sockaddr *) &localAddr, stdout, 1);
             if(sock_addr) {
                 printf("********client sock_addr = %s***********\n",sock_addr);
@@ -160,8 +159,6 @@ static void handle_http_post(int clntSocket, char *username) {
                 }
                 free(sock_addr);
             }
-            handle_http_get(clntSocket, "/VERIFY_OK.html");
-
         } else {
             handle_http_get(clntSocket, "/VERIFY_FAILED.html");
         }
