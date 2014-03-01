@@ -33,6 +33,7 @@ static char* get_twitter_id(char *poststr, char *user) {
     if (content_length_value[0] == '\0') return NULL;
 
     char *username = strstr(poststr,"uname=");
+    if (username == NULL) return NULL;
     int j = 0;
     int length = atoi(content_length_value);
 
@@ -157,7 +158,7 @@ int SetupTCPServerSocket(const char *service) {
     // Construct the server address structure
     struct addrinfo addrCriteria;                                     // Criteria for address match
     memset(&addrCriteria, 0, sizeof(addrCriteria)); // Zero out structure
-    addrCriteria.ai_family = AF_UNSPEC;                         // Any address family
+    addrCriteria.ai_family = AF_INET;                         // Any address family
     addrCriteria.ai_flags = AI_PASSIVE;                         // Accept on any address/port
     addrCriteria.ai_socktype = SOCK_STREAM;                 // Only stream sockets
     addrCriteria.ai_protocol = IPPROTO_TCP;                 // Only TCP protocol
