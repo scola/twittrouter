@@ -238,7 +238,7 @@ void HandleTCPClient(int clntSocket) {
     char friend[TWITTER_USERNAME_MAX_LEN] = {'\0',};
     char *reqline[3];
 
-    char *friend_id = "shaozhengwu";
+    char *friend_id = get_twitter_id(buffer, friend);
     reqline[0] = strtok (buffer, " \t\n");
     reqline[1] = strtok (NULL, " \t");
     reqline[2] = strtok (NULL, " \t\n");
