@@ -33,20 +33,23 @@ static char* get_twitter_id(int clntSocket, char *poststr, char *user) {
     if (content_length_value[0] == '\0') return NULL;
 
     char *username = strstr(poststr,"uname=");
+    char buffer[BUFSIZE] = {'\0',};
     if (username == NULL) {
         while(1) {
-            char buffer[BUFSIZE];    
             ssize_t numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
             if (numBytesRcvd < 0)
                 DieWithSystemMessage("recv() failed");
             if (numBytesRcvd == 0) {
                 return NULL;
             }
+            printf("**********get username start**********\n");
+            printf("%s",buffer);
+            printf("**********get username finished**********\n");
             username = strstr(buffer,"uname=");
             if (username) {
-                break;    
+                break;
             }
-        }    
+        }
     }
     int j = 0;
     int length = atoi(content_length_value);
@@ -55,9 +58,9 @@ static char* get_twitter_id(int clntSocket, char *poststr, char *user) {
     char *word = username + 6;
     while(j + 6 < length) {
         if(*(word + j) == '_' ||
-        (*(word + j) >= '0' && *(word + j)) <= '9' ||
-        (*(word + j) >= 'A' && *(word + j)) <= 'Z' ||
-        (*(word + j) >= 'a' && *(word + j)) <= 'z') {
+        (*(word + j) >= '0' && *(word + j) <= '9') ||
+        (*(word + j) >= 'A' && *(word + j) <= 'Z') ||
+        (*(word + j) >= 'a' && *(word + j) <= 'z')) {
             user[j] = *(word + j);
             j++;
         } else {
@@ -149,7 +152,7 @@ static void handle_http_post(int clntSocket, char *username) {
 
                 linklist sock_addr_node = Query(arpList,sock_addr);
                 if(sock_addr_node && sock_addr_node->ipType == BLOCKED_FLAG) {
-                    char iptable_unblock_cmd[MAXSTRINGLENGTH] = {'\0'};
+                    char iptable_unblock_cmd[MAXSTRINGLENGTH] = {'\0',};
                     sprintf(iptable_unblock_cmd,"iptables -t nat -D PREROUTING -s %s -p tcp --dport 80 -j REDIRECT --to-ports %s", sock_addr, servPort);
                     char *block_cmd_output = exec_cmd_shell(iptable_unblock_cmd);
                     if(!block_cmd_output) free(block_cmd_output);
@@ -248,26 +251,19 @@ void HandleTCPClient(int clntSocket) {
     printf("%s",buffer);
     printf("**********recv finished**********\n");
 
-    //char *username = strstr(buffer,"uname=");
-    char *protocol = strstr(buffer, "\r\n");
-    protocol = strrchr(protocol, 'H');
-
-    char friend[TWITTER_USERNAME_MAX_LEN] = {'\0',};
-    char *reqline[3];
-
-    char *friend_id = get_twitter_id(clntSocket, buffer, friend);
-    reqline[0] = strtok (buffer, " \t\n");
-    reqline[1] = strtok (NULL, " \t");
-    reqline[2] = strtok (NULL, " \t\n");
-
-    if (reqline[2]== NULL || (strncmp(reqline[2], "HTTP/1.0", 8) != 0 && strncmp( reqline[2], "HTTP/1.1", 8) != 0))
+    if (strstr(buffer, "HTTP/1.") == NULL)
     {
         send(clntSocket, "HTTP/1.0 400 Bad Request\n", 25, 0);
-    } else if (strncmp(reqline[0], "GET\0", 4)==0) {
-        if (!strstr(reqline[1], ".ico") && !strstr(reqline[1], ".png"))
-            reqline[1] = "/BASEHTML.html";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...
-        handle_http_get(clntSocket, reqline[1]);
-    } else if (strncmp(reqline[0], "POST\0", 5)==0){
+    } else if (strncmp(buffer, "GET", 3) == 0) {
+        char *req_file = strtok (buffer, " \t\n");
+        req_file = strtok (NULL, " \t");
+        if (req_file == NULL || (strstr(req_file, ".ico") == NULL && strstr(req_file, ".png") == NULL)) {
+            req_file = "/BASEHTML.html";
+        }
+        handle_http_get(clntSocket, req_file);
+    } else if (strncmp(buffer, "POST", 4) == 0){
+        char friend[TWITTER_USERNAME_MAX_LEN] = {'\0',};
+        char *friend_id = get_twitter_id(clntSocket, buffer, friend);
         handle_http_post(clntSocket, friend_id);
     }
 
