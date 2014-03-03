@@ -243,37 +243,29 @@ void HandleTCPClient(int clntSocket) {
     ssize_t numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
     if (numBytesRcvd < 0)
         DieWithSystemMessage("recv() failed");
-    while(numBytesRcvd > 0) {
-        printf("**********recv start**********\n");
-        printf("%s",buffer);
-        printf("**********recv finished**********\n");
-
-        if (strstr(buffer, "HTTP/1.") == NULL)
-        {
-            send(clntSocket, "HTTP/1.0 400 Bad Request\n", 25, 0);
-        } else if (strncmp(buffer, "GET", 3) == 0) {
-            char *req_file = strtok (buffer, " \t\n");
-            req_file = strtok (NULL, " \t");
-            if (req_file == NULL || (strstr(req_file, ".ico") == NULL && strstr(req_file, ".png") == NULL)) {
-                req_file = "/BASEHTML.html";
-            }
-            handle_http_get(clntSocket, req_file);
-        } else if (strncmp(buffer, "POST", 4) == 0){
-            char friend[TWITTER_USERNAME_MAX_LEN] = {'\0',};
-            char *friend_id = get_twitter_id(clntSocket, buffer, friend);
-            handle_http_post(clntSocket, friend_id);
-        }
-        struct timeval timeout;      
-        timeout.tv_sec = 1;
-        timeout.tv_usec = 0;
-        
-        if (setsockopt (clntSocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
-                sizeof(timeout)) < 0)
-            DieWithSystemMessage("setsockopt failed");
-        
-        numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
-        if (numBytesRcvd < 0)
-            DieWithSystemMessage("recv() failed");
+    if (numBytesRcvd == 0) {
+        close(clntSocket);
+        return;
     }
+    printf("**********recv start**********\n");
+    printf("%s",buffer);
+    printf("**********recv finished**********\n");
+
+    if (strstr(buffer, "HTTP/1.") == NULL)
+    {
+        send(clntSocket, "HTTP/1.0 400 Bad Request\n", 25, 0);
+    } else if (strncmp(buffer, "GET", 3) == 0) {
+        char *req_file = strtok (buffer, " \t\n");
+        req_file = strtok (NULL, " \t");
+        if (req_file == NULL || (strstr(req_file, ".ico") == NULL && strstr(req_file, ".png") == NULL)) {
+            req_file = "/BASEHTML.html";
+        }
+        handle_http_get(clntSocket, req_file);
+    } else if (strncmp(buffer, "POST", 4) == 0){
+        char friend[TWITTER_USERNAME_MAX_LEN] = {'\0',};
+        char *friend_id = get_twitter_id(clntSocket, buffer, friend);
+        handle_http_post(clntSocket, friend_id);
+    }
+
     close(clntSocket); // Close client socket
 }
