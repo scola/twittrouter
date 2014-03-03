@@ -40,8 +40,7 @@ static char* get_twitter_id(int clntSocket, char *poststr, char *user) {
             if (numBytesRcvd < 0)
                 DieWithSystemMessage("recv() failed");
             if (numBytesRcvd == 0) {
-                close(clntSocket);
-                return;
+                return NULL;
             }
             username = strstr(buffer,"uname=");
             if (username) {
@@ -119,11 +118,11 @@ static void handle_http_get(int clntSocket, char* file) {
                 send_to_client(clntSocket,data_to_send, bytes_read);
             }
         }
+        close(fd);
     }
     else {
         send_to_client(clntSocket, "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
     }
-    close(fd);
 }
 
 static void handle_http_post(int clntSocket, char *username) {
@@ -250,6 +249,9 @@ void HandleTCPClient(int clntSocket) {
     printf("**********recv finished**********\n");
 
     //char *username = strstr(buffer,"uname=");
+    char *protocol = strstr(buffer, "\r\n");
+    protocol = strrchr(protocol, 'H');
+
     char friend[TWITTER_USERNAME_MAX_LEN] = {'\0',};
     char *reqline[3];
 
