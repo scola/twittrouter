@@ -85,6 +85,9 @@ static bool parser_friendship_json(char *friendship) {
 
     if(first_front && first_front != second_front ) {
         char *connections = strstr(second_front,"connections");
+        if(connections == NULL) {
+            return false;    
+        }
         char *colon = strchr(connections,':');
         if(strncmp(strchr(colon,'"'),"\"none",5) == 0)
             return false;
@@ -141,6 +144,7 @@ static void handle_http_post(int clntSocket, char *username) {
     if(friendship) {
         if(parser_friendship_json(friendship)) {
             handle_http_get(clntSocket, "/VERIFY_OK.html");
+            sleep(1);
             struct sockaddr_storage localAddr;
             socklen_t addrSize = sizeof(localAddr);
             //char addrBuffer[INET6_ADDRSTRLEN];
