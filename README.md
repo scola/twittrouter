@@ -4,7 +4,7 @@ Twittrouter is used to verify your wifi client by twitter friends.It runs on [op
 
 Usage
 -----
-Build the source code,because this project requires liboauth library,so we should compile this lib first.liboauth don't require OpenSSL before version-0.7.2,so I select version-0.7.1
+Build the source code,because this project requires [liboauth](http://liboauth.sourceforge.net/) library,so we should compile this lib first.liboauth don't require OpenSSL before version-0.7.2,so I select version-0.7.1
 ```bash
 # At OpenWRT build root
 pushd package

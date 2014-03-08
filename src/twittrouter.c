@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
         usage();
         exit(EXIT_FAILURE);
     }
-    printf("*****%s*****\n",servPort);
+    printf("*****server port%s*****\n",servPort);
 
     if (conf_path != NULL)
     {
