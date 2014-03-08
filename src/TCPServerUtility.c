@@ -31,28 +31,25 @@ static char* get_twitter_id(int clntSocket, char *poststr, char *user) {
     }
     printf("\n*******content_length_value = %s*******\n",content_length_value);
     if (content_length_value[0] == '\0') return NULL;
+    int length = atoi(content_length_value);
 
     char *username = strstr(poststr,"uname=");
     char buffer[BUFSIZE] = {'\0',};
-    if (username == NULL) {
-        while(1) {
-            ssize_t numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
-            if (numBytesRcvd < 0)
-                DieWithSystemMessage("recv() failed");
-            if (numBytesRcvd == 0) {
-                return NULL;
-            }
-            printf("**********get username start**********\n");
-            printf("%s",buffer);
-            printf("**********get username finished**********\n");
-            username = strstr(buffer,"uname=");
-            if (username) {
-                break;
-            }
+
+    while(username == NULL || strstr(username, "\r\n") - username != length) {
+        ssize_t numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
+        if (numBytesRcvd < 0)
+            DieWithSystemMessage("recv() failed");
+        if (numBytesRcvd == 0) {
+            return NULL;
         }
+        printf("**********get username start**********\n");
+        printf("%s",buffer);
+        printf("**********get username finished**********\n");
+        username = strstr(buffer,"uname=");
     }
+
     int j = 0;
-    int length = atoi(content_length_value);
 
     if(length <= 6 || length - 6 > TWITTER_USERNAME_MAX_LEN) return NULL;
     char *word = username + 6;
@@ -76,26 +73,6 @@ static void send_to_client(int clntSocket, char *buffer, int send_byte) {
     ssize_t numBytesSent = send(clntSocket, buffer, send_byte, 0);
     if (numBytesSent < 0)
         DieWithSystemMessage("send() failed");
-}
-
-static bool parser_friendship_json(char *friendship) {
-    if (!friendship) return false;
-    char *first_front = strchr(friendship,'{');
-    char *second_front = strrchr(friendship,'{');
-
-    if(first_front && first_front != second_front ) {
-        char *connections = strstr(second_front,"connections");
-        if(connections == NULL) {
-            return false;    
-        }
-        char *colon = strchr(connections,':');
-        if(strncmp(strchr(colon,'"'),"\"none",5) == 0)
-            return false;
-        else
-            return true;
-    }else {
-        return false;
-    }
 }
 
 static void handle_http_get(int clntSocket, char* file) {
@@ -140,36 +117,32 @@ static void handle_http_post(int clntSocket, char *username) {
     }
     printf("a friend of twitter %s is verifying...\n", username);
 
-    char *friendship = access_token_request_data(username);
-    if(friendship) {
-        if(parser_friendship_json(friendship)) {
-            handle_http_get(clntSocket, "/VERIFY_OK.html");
-            sleep(1);
-            struct sockaddr_storage localAddr;
-            socklen_t addrSize = sizeof(localAddr);
-            //char addrBuffer[INET6_ADDRSTRLEN];
-            if (getpeername(clntSocket, (struct sockaddr *) &localAddr, &addrSize) < 0)
-                DieWithSystemMessage("getsockname() failed");
-            char *sock_addr = PrintSocketAddress((struct sockaddr *) &localAddr, stdout, 1);
-            if(sock_addr) {
-                printf("********client sock_addr = %s***********\n",sock_addr);
+    if(get_friendship(username)) {
+        handle_http_get(clntSocket, "/VERIFY_OK.html");
+        sleep(1);
+        struct sockaddr_storage localAddr;
+        socklen_t addrSize = sizeof(localAddr);
+        //char addrBuffer[INET6_ADDRSTRLEN];
+        if (getpeername(clntSocket, (struct sockaddr *) &localAddr, &addrSize) < 0)
+            DieWithSystemMessage("getsockname() failed");
+        char *sock_addr = PrintSocketAddress((struct sockaddr *) &localAddr, stdout, 1);
+        if(sock_addr) {
+            printf("********client sock_addr = %s***********\n",sock_addr);
 
-                linklist sock_addr_node = Query(arpList,sock_addr);
-                if(sock_addr_node && sock_addr_node->ipType == BLOCKED_FLAG) {
-                    char iptable_unblock_cmd[MAXSTRINGLENGTH] = {'\0',};
-                    sprintf(iptable_unblock_cmd,"iptables -t nat -D PREROUTING -s %s -p tcp --dport 80 -j REDIRECT --to-ports %s", sock_addr, servPort);
-                    char *block_cmd_output = exec_cmd_shell(iptable_unblock_cmd);
-                    if(!block_cmd_output) free(block_cmd_output);
-                    printf("authed client ip address %s \n",sock_addr);
-                    Update(sock_addr_node,OAUTHED_FLAG);
-                }
-                free(sock_addr);
+            linklist sock_addr_node = Query(arpList,sock_addr);
+            if(sock_addr_node && sock_addr_node->ipType == BLOCKED_FLAG) {
+                char iptable_unblock_cmd[MAXSTRINGLENGTH] = {'\0',};
+                sprintf(iptable_unblock_cmd,"iptables -t nat -D PREROUTING -s %s -p tcp --dport 80 -j REDIRECT --to-ports %s", sock_addr, servPort);
+                char *block_cmd_output = exec_cmd_shell(iptable_unblock_cmd);
+                if(!block_cmd_output) free(block_cmd_output);
+                printf("authed client ip address %s \n",sock_addr);
+                Update(sock_addr_node,OAUTHED_FLAG);
             }
-        } else {
-            handle_http_get(clntSocket, "/VERIFY_FAILED.html");
+            free(sock_addr);
         }
-        free(friendship);
-    }
+    } else {
+        handle_http_get(clntSocket, "/VERIFY_FAILED.html");
+    }    
 }
 
 int SetupTCPServerSocket(const char *service) {

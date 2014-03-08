@@ -15,12 +15,6 @@
 #include "jconf.h"
 #include "twittrouter.h"
 
-/* constants */
-const char *request_token_uri = "https://api.twitter.com/oauth/request_token";
-const char *access_token_uri  = "https://api.twitter.com/oauth/access_token";
-const char *authorize_uri     = "https://api.twitter.com/oauth/authorize";
-
-
 struct MemoryStruct {
   char *data;
   size_t size; //< bytes remaining (r), bytes accumulated (w)
@@ -50,7 +44,7 @@ WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data) {
  * excercising the oauth-HTTP GET function. - it is almost the same as
  * \ref request_token_example_post below.
  */
-char* access_token_request_data(char *username) {
+static char* access_token_request_data(char *username) {
     char *req_url = NULL;
     char *reply;
     char friendship_url[MAXSTRINGLENGTH] = {'\0',};
@@ -103,3 +97,33 @@ char* access_token_request_data(char *username) {
     else      return NULL;
 }
 
+static bool parser_friendship_json(char *friendship) {
+    if (!friendship) return false;
+    char *first_front = strchr(friendship,'{');
+    char *second_front = strrchr(friendship,'{');
+
+    if(first_front && first_front != second_front ) {
+        char *connections = strstr(second_front,"connections");
+        if(connections == NULL) {
+            return false;    
+        }
+        char *colon = strchr(connections,':');
+        if(strncmp(strchr(colon,'"'),"\"none",5) == 0)
+            return false;
+        else
+            return true;
+    }else {
+        return false;
+    }
+}
+
+bool get_friendship(char *username) {
+    char *friendship = access_token_request_data(username);
+    if(friendship != NULL && parser_friendship_json(friendship) == true) {
+        free(friendship);
+        return true;
+    } else if(friendship != NULL) {
+        free(friendship);
+    }
+    return false;
+}

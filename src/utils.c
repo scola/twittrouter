@@ -98,7 +98,7 @@ char *str_replace(char *orig, char *rep, char *with) {
     len_with = strlen(with);
 
     ins = orig;
-    for (count = 0; tmp = strstr(ins, rep); ++count) {
+    for (count = 0; (tmp = strstr(ins, rep)) != NULL; ++count) {
         ins = tmp + len_rep;
     }
 
@@ -141,8 +141,11 @@ void usage()
     printf("    whitelist:            your own device mac address that split by '|'\n");
     printf("\n");
     printf("    [-p <servPort>]       server port,the default value is 9999\n");
+    printf("    [-c <config path>]    twittrouter.json path,default /etc/config/twittrouter.json\n");
+    printf("    [-r <root>]           html file path for the server,default /www/twittrouter\n");
     printf("    [-h <help>]           get the usage of the twittrouter\n");
-    printf("    [-v <version>]        the twittrouter version\n");
+    printf("    [-u <username>]       just use to test the oauth and network config\n");
+    printf("    [-f <pid_file>]       valid path to the pid file\n");
     printf("\n");
 }
 

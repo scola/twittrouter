@@ -35,13 +35,14 @@ int main(int argc, char *argv[]) {
     char *conf_path = DEFAULT_CONFIG_PATH;
     char *TwitterID = NULL;
     char *pid_path = NULL;
+    char *userfortest = NULL;
 
     root = DEFAULT_SERVER_DIR;
     servPort = DEFAULT_SERVER_PORT;
 
     opterr = 0;
 
-    while ((c = getopt (argc, argv, "p:r:c:t:hv")) != -1) {
+    while ((c = getopt (argc, argv, "p:r:c:t:u:hv")) != -1) {
         switch (c)
         {
             case 'r':
@@ -53,12 +54,11 @@ int main(int argc, char *argv[]) {
             case 'c':
                 conf_path = optarg;
                 break;
+            case 'u':
+                userfortest = optarg;   //it's just used for test oauth
+                break;
             case 't':
                 TwitterID = optarg;     //it's just used to test the twitter username display on the webpage
-                break;
-            case 'v':
-                printf("twittrouter --version %s\n",VERSION);
-                exit(EXIT_SUCCESS);
                 break;
             case 'h':
                 usage();
@@ -89,6 +89,16 @@ int main(int argc, char *argv[]) {
             usage();
             exit(EXIT_FAILURE);
         }
+    }
+    
+    if(userfortest != NULL) {
+        if(get_friendship(userfortest)) {
+            printf("Congratulations! Verify success,%s is your twitter friend\n", userfortest);
+        }
+        else {
+            printf("Sorry! Maybe you have not config your network to go through to evil GFW,or try another friend again\n");
+        }
+        exit(EXIT_SUCCESS);
     }
 
     if (pid_flags)

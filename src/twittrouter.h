@@ -39,9 +39,11 @@ int SetupTCPServerSocket(const char *service);
 int AcceptTCPConnection(int servSock);
 // Handle new TCP client
 void HandleTCPClient(int clntSocket);
-// Request two twitter user friendship
-char* access_token_request_data(char *username);
+// Get twitter user friendship
+bool get_friendship(char *username);
+//execute the shell command
 char* exec_cmd_shell(char *cmd);
+//scan arp to get connected client and block the one not in the whitelist
 void scan_arp_and_block(char *arpOutput);
 
 extern jconf_t *conf;

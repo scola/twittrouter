@@ -1,14 +1,7 @@
 #ifndef _JCONF_H
 #define _JCONF_H
 
-#define MAX_WHITELIST_NUM 10
 #define MAX_CONF_SIZE 16 * 1024
-
-typedef struct
-{
-    char *host;
-    char *port;
-} remote_addr_t;
 
 typedef struct
 {
