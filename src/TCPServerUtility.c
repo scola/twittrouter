@@ -36,7 +36,7 @@ static char* get_twitter_id(int clntSocket, char *poststr, char *user) {
     char *username = strstr(poststr,"uname=");
     char buffer[BUFSIZE] = {'\0',};
 
-    while(username == NULL || strstr(username, "\r\n") - username != length) {
+    while(username == NULL) {
         ssize_t numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
         if (numBytesRcvd < 0)
             DieWithSystemMessage("recv() failed");
@@ -87,7 +87,7 @@ static void handle_http_get(int clntSocket, char* file) {
 
     if ((fd=open(path, O_RDONLY)) != -1)    //FILE FOUND
     {
-        send_to_client(clntSocket, "HTTP/1.0 200 OK\n\n", 17); //send header
+        send_to_client(clntSocket, "HTTP/1.0 200 OK\r\n\r\n", 19); //send header
         //send_to_client(clntSocket, "Content-type: text/html\n\n", 25);
         while ((bytes_read=read(fd, data_to_send, BUFSIZE)) > 0) {
             if (strcmp(strrchr(path,'.'), ".html") == 0) {
@@ -104,7 +104,7 @@ static void handle_http_get(int clntSocket, char* file) {
         close(fd);
     }
     else {
-        send_to_client(clntSocket, "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
+        send_to_client(clntSocket, "HTTP/1.0 404 Not Found\r\n\r\n", 26); //FILE NOT FOUND
     }
 }
 
@@ -115,7 +115,6 @@ static void handle_http_post(int clntSocket, char *username) {
         handle_http_get(clntSocket, "/VERIFY_FAILED.html");
         return;
     }
-    printf("a friend of twitter %s is verifying...\n", username);
 
     if(get_friendship(username)) {
         handle_http_get(clntSocket, "/VERIFY_OK.html");
@@ -230,7 +229,7 @@ void HandleTCPClient(int clntSocket) {
 
     if (strstr(buffer, "HTTP/1.") == NULL)
     {
-        send(clntSocket, "HTTP/1.0 400 Bad Request\n", 25, 0);
+        send(clntSocket, "HTTP/1.0 400 Bad Request\r\n\r\n", 28, 0);
     } else if (strncmp(buffer, "GET", 3) == 0) {
         char *req_file = strtok (buffer, " \t\n");
         req_file = strtok (NULL, " \t");
