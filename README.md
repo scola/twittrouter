@@ -59,7 +59,7 @@ or
 
 Chinese user only
 -----------------
-Because of the evil GFW,chinese user must make your route cross the GFW.You can take a look of [my blog](http://scola.github.io/deploy-proxy-on-openwrt--client-need-not-to-set/).Of course, you can use other network tools,such as VPN.It make no sense to run this program on your router unless your wifi client can cross the GFW.Because your wifi client need to connect to [twitter.com](https://twitter.com) without any setting.This program call twitter api and api.twitter.com is blocked too,so you must config your router to make your router cross the GFW internally.Please refer to [this topic](http://scola.github.io/add-twitter-follower-verification-over-wifi/)
+Because of the evil GFW,chinese user must make your route cross the GFW.You can take a look of [my blog](http://scola.github.io/deploy-proxy-on-openwrt--client-need-not-to-set/).Of course, you can use other network tools,such as VPN.**It make no sense to run this program on your router unless your wifi client can cross the GFW**.Because your wifi client need to connect to [twitter.com](https://twitter.com) without any setting.This program call twitter api and api.twitter.com is blocked too,so you must config your router to make your router cross the GFW internally.Please refer to [this topic](http://scola.github.io/add-twitter-follower-verification-over-wifi/)
 
 so I strongly suggest you test whether you configure you network correctly to go throuth the GFW.
 
