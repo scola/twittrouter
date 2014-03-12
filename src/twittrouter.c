@@ -77,7 +77,6 @@ int main(int argc, char *argv[]) {
         usage();
         exit(EXIT_FAILURE);
     }
-    printf("*****server port%s*****\n",servPort);
 
     if (conf_path != NULL)
     {
@@ -108,6 +107,7 @@ int main(int argc, char *argv[]) {
     //we need to create a thread to scan arp list and block some ip.
     arpList = CreatEmptyLink();
     create_thread(ScanArpList,NULL);
+    printf("server listening at port %s...\n",servPort);
 
     int servSock = SetupTCPServerSocket(servPort);
     if (servSock < 0)

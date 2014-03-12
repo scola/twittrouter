@@ -33,14 +33,12 @@
 #include "xmalloc.h"
 
 #include "sha1.c" // TODO: sha1.h ; Makefile.am: add sha1.c
-
+#include <polarssl/sha1.h>
 /* API */
 char *oauth_sign_hmac_sha1_raw (const char *m, const size_t ml, const char *k, const size_t kl) {
-	sha1nfo s;
-	sha1_initHmac(&s, (const uint8_t*) k, kl);
-	sha1_write(&s, m, ml);
-	unsigned char *digest = sha1_resultHmac(&s);
-  return oauth_encode_base64(HASH_LENGTH, digest);
+	unsigned char digest[20];
+  sha1_hmac(k, kl, m, ml, digest);
+  return oauth_encode_base64(20, digest);
 }
 
 char *oauth_sign_hmac_sha1 (const char *m, const char *k) {

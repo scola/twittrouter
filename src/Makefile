@@ -1,6 +1,6 @@
 # build twittrouter executable when user executes "make"
 CC=gcc
-LDFLAGS=-lpthread -lm -lcurl
+LDFLAGS=-lpthread -lm -lcurl -lpolarssl
 CFLAGS=-std=gnu99 -Wall
 twittrouter: twittrouter.o TCPServerUtility.o DieWithMessage.o AddressUtility.o utils.o jconf.o json.o arplinklist.o twitter.o hash.o oauth.o xmalloc.o
 	$(CC) $(LDFLAGS) twittrouter.o TCPServerUtility.o DieWithMessage.o AddressUtility.o utils.o jconf.o json.o arplinklist.o twitter.o hash.o oauth.o xmalloc.o -o twittrouter

@@ -50,7 +50,7 @@ define Package/twittrouter
 	CATEGORY:=Network
 	TITLE:=verify twitter friends on router
 	URL:=https://github.com/scola/twittrouter
-	DEPENDS:=+libcurl +libpthread
+	DEPENDS:=+libcurl +libpthread +libpolarssl
 endef
 
 define Package/twittrouter/description
