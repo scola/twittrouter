@@ -8,9 +8,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <oauth.h>
 #include <curl/curl.h>
 
+#include "oauth.h"
 #include "xmalloc.h"
 #include "jconf.h"
 #include "twittrouter.h"
