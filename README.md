@@ -4,7 +4,7 @@ Twittrouter is used to verify your wifi client by twitter friends.It runs on [op
 
 Usage
 -----
-Build the source code,because this project requires [liboauth](http://liboauth.sourceforge.net/) library,so we should compile this lib first.liboauth don't require OpenSSL before version-0.7.2,so I select version-0.7.1
+Build the source code,this project requires [liboauth](http://liboauth.sourceforge.net/) library,but I have include in the source code for static build
 ```bash
 # At OpenWRT build root
 pushd package
@@ -18,7 +18,6 @@ make menuconfig
 make -j
 
 # Build the package
-make V=s package/twittrouter/liboauth-0.7.1/compile
 make V=s package/twittrouter/compile
 ```
 If you trust me,you can skip the build step and [download the ipk package here](https://github.com/scola/twittrouter/tree/master/release) and install.You must config your source address correctly in /etc/opkg.conf. net-tools-arp and iptables are required
@@ -26,9 +25,8 @@ If you trust me,you can skip the build step and [download the ipk package here](
     opkg install iptables
     opkg install net-tools-arp
     
-and the install the liboauth and twittrouter ipk packages,it will automatically download and install the required library(libcurl,libpolarssl,libpthread)
+and the install twittrouter ipk packages,it will automatically download and install the required library(libcurl,libpolarssl,libpthread)
 
-    opkg install liboauth
     opkg install twittrouter
 
 Get the usage of twittrouter
@@ -59,7 +57,7 @@ or
 
 Chinese user only
 -----------------
-Because of the evil GFW,chinese user must make your route cross the GFW.You can take a look of [my blog](http://scola.github.io/deploy-proxy-on-openwrt--client-need-not-to-set/).Of course, you can use other network tools,such as VPN.**It make no sense to run this program on your router unless your wifi client can cross the GFW**.Because your wifi client need to connect to [twitter.com](https://twitter.com) without any setting.This program call twitter api and api.twitter.com is blocked too,so you must config your router to make your router cross the GFW internally.Please refer to [this topic](http://scola.github.io/add-twitter-follower-verification-over-wifi/)
+Because of the evil GFW,chinese user must make your route cross the GFW.You can take a look of [my blog](http://scola.github.io/deploy-proxy-on-openwrt--client-need-not-to-set/).Of course, you can use other network tools,such as VPN.**It makes no sense to run this program on your router unless your wifi client can cross the GFW**.Because your wifi client need to connect to [twitter.com](https://twitter.com) without any setting.This program call twitter api and api.twitter.com is blocked too,so you must config your router to make your router cross the GFW internally.Please refer to [this topic](http://scola.github.io/add-twitter-follower-verification-over-wifi/)
 
 so I strongly suggest you test whether you configure you network correctly to go throuth the GFW.
 
