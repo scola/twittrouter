@@ -233,7 +233,7 @@ void HandleTCPClient(int clntSocket) {
     } else if (strncmp(buffer, "GET", 3) == 0) {
         char *req_file = strtok (buffer, " \t\n");
         req_file = strtok (NULL, " \t");
-        if (req_file == NULL || (strstr(req_file, ".ico") == NULL && strstr(req_file, ".png") == NULL)) {
+        if (req_file == NULL || (strcmp(req_file, "/favicon.ico") && strcmp(req_file, "/twitter-logo-1.png"))) {
             req_file = "/BASEHTML.html";
         }
         handle_http_get(clntSocket, req_file);
