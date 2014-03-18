@@ -11,8 +11,9 @@ ss_config_path="/etc/config/shadowsocks.json"
 
 #check if the pdnsd installed
 if [ ! -f $pdns_config_path ] ; then
-    echo 'opkg update'
-    echo 'opkg install pdnsd'
+    echo 'install pdnsd...'
+    opkg update
+    opkg install pdnsd
 fi
 
 #whether the pdnsd.conf have configured correctly
