@@ -5,7 +5,6 @@ isp_dns_server="8\.8\.8\.8"
 query_mothod="tcp_only"
 server_ip="server_ip = 0\.0\.0\.0"
 
-startup_script="/etc/init.d/"
 pdns_config_path="/etc/pdnsd.conf"
 ss_config_path="/etc/config/shadowsocks.json"
 
@@ -19,17 +18,17 @@ fi
 #whether the pdnsd.conf have configured correctly
 if  grep -o $pdns_listen_port  $pdns_config_path > /dev/null; then
         echo "pdnsd configured"
-    else
-        echo "config now"
-        match='run_as=\"nobody\";'
-        insert="\tserver_port = $pdns_listen_port;"
-        relace_ip="server_ip = 127\.0\.0\.1"
-        replace_isp_ip="192\.168\.0\.1"
-        sed -i "s/$match/$match\n$insert/" $pdns_config_path
-        sed -i "s/$relace_ip/$server_ip/" $pdns_config_path
-        sed -i "s/"udp_tcp"/$query_mothod/" $pdns_config_path
-        sed -i "s/$replace_isp_ip/$isp_dns_server/" $pdns_config_path
-    fi
+else
+    echo "config now"
+    match='run_as=\"nobody\";'
+    insert="\tserver_port = $pdns_listen_port;"
+    relace_ip="server_ip = 127\.0\.0\.1"
+    replace_isp_ip="192\.168\.0\.1"
+    sed -i "s/$match/$match\n$insert/" $pdns_config_path
+    sed -i "s/$relace_ip/$server_ip/" $pdns_config_path
+    sed -i "s/"udp_tcp"/$query_mothod/" $pdns_config_path
+    sed -i "s/$replace_isp_ip/$isp_dns_server/" $pdns_config_path
+fi
 
 #start the pdnsd    
 /etc/init.d/pdnsd start
