@@ -9,8 +9,6 @@
 #include "utils.h"
 #include "twittrouter.h"
 
-#define VERSION "0.1.0"
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
