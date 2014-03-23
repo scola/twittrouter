@@ -243,5 +243,6 @@ void HandleTCPClient(int clntSocket) {
         handle_http_post(clntSocket, friend_id);
     }
 
+    shutdown(clntSocket, SHUT_RDWR); //All further send and recieve operations are DISABLED...
     close(clntSocket); // Close client socket
 }
