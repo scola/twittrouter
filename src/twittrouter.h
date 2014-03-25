@@ -27,10 +27,6 @@ void  Update (linklist p,int  ipType);
 linklist Query (linklist p,char* ipaddr );
 linklist CreatEmptyLink ( );
 
-// Handle error with user msg
-void DieWithUserMessage(const char *msg, const char *detail);
-// Handle error with sys msg
-void DieWithSystemMessage(const char *msg);
 // Print socket address
 char* PrintSocketAddress(const struct sockaddr *address, FILE *stream, int flag);
 // Create, bind, and listen a new TCP server socket

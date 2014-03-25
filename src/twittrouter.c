@@ -25,7 +25,7 @@ static void create_thread(void *thread_func,void *threadArgs) {
     pthread_t threadID;
     int returnValue = pthread_create(&threadID, NULL, thread_func, threadArgs);
     if (returnValue != 0)
-        DieWithUserMessage("pthread_create() failed", strerror(returnValue));
+        FATAL("pthread_create() failed");
     printf("with thread %ld\n", (long int) threadID);
 }
 
@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
 
     int servSock = SetupTCPServerSocket(servPort);
     if (servSock < 0)
-        DieWithUserMessage("SetupTCPServerSocket() failed", "unable to establish");
+        FATAL("unable to establish");
     for (;;) { // Run forever
         int clntSock = AcceptTCPConnection(servSock);
 
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
         struct ThreadArgs *threadArgs = (struct ThreadArgs *) malloc(
                 sizeof(struct ThreadArgs));
         if (threadArgs == NULL)
-            DieWithSystemMessage("malloc() failed");
+            FATAL("malloc() failed");
         threadArgs->clntSock = clntSock;
 
         // Create client thread

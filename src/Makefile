@@ -2,14 +2,12 @@
 CC=gcc
 LDFLAGS=-lpthread -lm -lcurl
 CFLAGS=-std=gnu99 -Wall
-twittrouter: twittrouter.o TCPServerUtility.o DieWithMessage.o AddressUtility.o utils.o jconf.o json.o arplinklist.o twitter.o hash.o oauth.o xmalloc.o
-	$(CC) $(LDFLAGS) twittrouter.o TCPServerUtility.o DieWithMessage.o AddressUtility.o utils.o jconf.o json.o arplinklist.o twitter.o hash.o oauth.o xmalloc.o -o twittrouter
+twittrouter: twittrouter.o TCPServerUtility.o AddressUtility.o utils.o jconf.o json.o arplinklist.o twitter.o hash.o oauth.o xmalloc.o
+	$(CC) $(LDFLAGS) twittrouter.o TCPServerUtility.o AddressUtility.o utils.o jconf.o json.o arplinklist.o twitter.o hash.o oauth.o xmalloc.o -o twittrouter
 twittrouter.o: twittrouter.c
 	$(CC) $(CFLAGS) -c twittrouter.c
 TCPServerUtility.o: TCPServerUtility.c
 	$(CC) $(CFLAGS) -c TCPServerUtility.c
-DieWithMessage.o: DieWithMessage.c
-	$(CC) $(CFLAGS) -c DieWithMessage.c
 AddressUtility.o: AddressUtility.c
 	$(CC) $(CFLAGS) -c AddressUtility.c
 utils.o: utils.c

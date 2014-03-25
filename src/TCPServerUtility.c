@@ -38,9 +38,8 @@ static char* get_twitter_id(int clntSocket, char *poststr, char *user) {
 
     while(username == NULL) {
         ssize_t numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
-        if (numBytesRcvd < 0)
-            DieWithSystemMessage("recv() failed");
-        if (numBytesRcvd == 0) {
+        if (numBytesRcvd <= 0){
+            ERROR("recv() failed");
             return NULL;
         }
         printf("**********get username start**********\n");
@@ -72,7 +71,7 @@ static char* get_twitter_id(int clntSocket, char *poststr, char *user) {
 static void send_to_client(int clntSocket, char *buffer, int send_byte) {
     ssize_t numBytesSent = send(clntSocket, buffer, send_byte, 0);
     if (numBytesSent < 0)
-        DieWithSystemMessage("send() failed");
+        ERROR("send() failed");
 }
 
 static void handle_http_get(int clntSocket, char* file) {
@@ -123,7 +122,7 @@ static void handle_http_post(int clntSocket, char *username) {
         socklen_t addrSize = sizeof(localAddr);
         //char addrBuffer[INET6_ADDRSTRLEN];
         if (getpeername(clntSocket, (struct sockaddr *) &localAddr, &addrSize) < 0)
-            DieWithSystemMessage("getsockname() failed");
+            ERROR("getsockname() failed");
         char *sock_addr = PrintSocketAddress((struct sockaddr *) &localAddr, stdout, 1);
         if(sock_addr) {
             printf("********client sock_addr = %s***********\n",sock_addr);
@@ -156,7 +155,7 @@ int SetupTCPServerSocket(const char *service) {
     struct addrinfo *servAddr; // List of server addresses
     int rtnVal = getaddrinfo(NULL, service, &addrCriteria, &servAddr);
     if (rtnVal != 0)
-        DieWithUserMessage("getaddrinfo() failed", gai_strerror(rtnVal));
+        ERROR("getaddrinfo() failed");
 
     int servSock = -1;
     for (struct addrinfo *addr = servAddr; addr != NULL; addr = addr->ai_next) {
@@ -174,7 +173,7 @@ int SetupTCPServerSocket(const char *service) {
             socklen_t addrSize = sizeof(localAddr);
             //char addrBuffer[INET6_ADDRSTRLEN];
             if (getsockname(servSock, (struct sockaddr *) &localAddr, &addrSize) < 0)
-                DieWithSystemMessage("getsockname() failed");
+                ERROR("getsockname() failed");
             fputs("Binding to ", stdout);
             PrintSocketAddress((struct sockaddr *) &localAddr, stdout, 0);
             fputc('\n', stdout);
@@ -200,7 +199,7 @@ int AcceptTCPConnection(int servSock) {
     int clntSock = accept(servSock, (struct sockaddr *) &clntAddr, &clntAddrLen);
     //char addrBuffer[INET6_ADDRSTRLEN];
     if (clntSock < 0)
-        DieWithSystemMessage("accept() failed");
+        ERROR("accept() failed");
 
     // clntSock is connected to a client!
 
@@ -217,9 +216,8 @@ void HandleTCPClient(int clntSocket) {
 
     // Receive message from client
     ssize_t numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
-    if (numBytesRcvd < 0)
-        DieWithSystemMessage("recv() failed");
-    if (numBytesRcvd == 0) {
+    if (numBytesRcvd <= 0){
+        ERROR("recv() failed");
         close(clntSocket);
         return;
     }
