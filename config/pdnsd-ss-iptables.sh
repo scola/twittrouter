@@ -6,7 +6,7 @@ query_mothod="tcp_only"
 server_ip="server_ip = 0\.0\.0\.0"
 
 pdns_config_path="/etc/pdnsd.conf"
-ss_config_path="/etc/config/shadowsocks.json"
+ss_config_path="/etc/shadowsocks.json"
 
 #check if the pdnsd installed
 if [ ! -f $pdns_config_path ] ; then
@@ -51,7 +51,7 @@ echo "get the ss-server ip:$ss_server_ip"
 echo "get the ss-local_port:$ss_local_port"
 
 #start shadowsocks to cross GFW
-ss-redir -c /etc/config/shadowsocks.json -f /var/run/shadowsocks.pid
+ss-redir -c $ss_config_path -f /var/run/shadowsocks.pid
 
 #skip the chinese route for shadowsocks
 iptables -t nat -N SHADOWSOCKS

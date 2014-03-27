@@ -1,0 +1,22 @@
+
+config interface 'loopback'
+	option ifname 'lo'
+	option proto 'static'
+	option ipaddr '127.0.0.1'
+	option netmask '255.0.0.0'
+
+config globals 'globals'
+        option ula_prefix 'fdb5:83ad:5d0c::/48'
+
+config interface 'lan'
+	option type 'bridge'
+	option proto 'static'
+	option ipaddr '192.168.1.1'
+	option netmask '255.255.255.0'
+        
+config interface 'wan'
+	option proto 'pppoe'
+	option ifname 'eth0'
+	option username '080020335913'
+	option password '768729'
+
