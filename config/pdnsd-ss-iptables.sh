@@ -1,4 +1,6 @@
 #!/bin/sh
+#https://github.com/scola/twittrouter/blob/master/config/pdnsd-ss-iptables.sh
+#auto configure the pdnsd and iptables to cross GFW
 
 pdns_listen_port=5353
 isp_dns_server="8\.8\.8\.8"

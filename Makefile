@@ -89,6 +89,8 @@ define Package/twittrouter/install
 	$(INSTALL_BIN) ./html/* $(1)/www/twittrouter
 	$(INSTALL_BIN) ./config/twittrouter.init $(1)/etc/init.d/twittrouter
 	$(INSTALL_CONF) ./config/twittrouter.json $(1)/etc/config/twittrouter.json
+	$(INSTALL_CONF) ./config/pdnsd-ss-iptables.sh $(1)/etc/config/pdnsd-ss-iptables.sh
+	$(INSTALL_CONF) ./config/network-pppoe $(1)/etc/config/network-pppoe
 endef
 
 # This line executes the necessary commands to compile our program.
