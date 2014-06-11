@@ -17,7 +17,7 @@
 #include "twittrouter.h"
 
 /* constants */
-const char *request_token_uri = "https://api.twitter.com/oauth/request_token";
+const char *request_token_uri = "https://api.twitter.com/oauth/request_token&oauth_callback=oob";
 const char *access_token_uri  = "https://api.twitter.com/oauth/access_token";
 const char *authorize_uri     = "https://api.twitter.com/oauth/authorize";
 const char *req_c_key         = "yo9tIaQs7prILLMSq3DQiQ"; //< consumer key
@@ -131,9 +131,10 @@ void request_token_example_get(void) {
 
     printf("request URL:%s\n\n", req_url);
     reply = curl_http_get(req_url); /* GET */
-    if (!reply)
+    if (!reply) {
         printf("Please check your network,maybe it's blocked by GFW\n");
         FATAL("HTTP request for an oauth request-token failed.\n");
+    }
     else {
         int rc;
         char **rv = NULL;
@@ -152,7 +153,7 @@ void request_token_example_get(void) {
             }
             printf("key:    %s\nsecret: %s\n",req_t_key, req_t_secret);
             printf("*****Please open the url below by your browser*****\n");
-            printf("    %?oauth_callback=oob&oauth_token=%s\n", authorize_uri, req_t_key);
+            printf("    %s?oauth_token=%s\n", authorize_uri, req_t_key);
             printf("*****Please open the url above by your browser*****\n");
         }
         if(rv) free(rv);
