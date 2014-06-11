@@ -14,5 +14,6 @@ typedef struct
 } jconf_t;
 
 jconf_t *read_jconf(const char* file);
+void dump_jconf(char *conf_path);
 
 #endif // _JCONF_H

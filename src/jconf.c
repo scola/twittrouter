@@ -35,6 +35,41 @@ static char *to_string(const json_value *value)
     return 0;
 }
 
+static char* packstring(char *origin, char *delm) {
+    char *ret = (char *)malloc(strlen(origin) + 2 * strlen(delm) + 1);
+    memset(ret,0,strlen(ret));
+    strcat(ret,delm);
+    strcat(ret,origin);
+    strcat(ret,delm);
+    return ret;
+}
+
+char* concatstring(char *origin, char *delm, char *tail) {
+    char *ret = (char *)malloc(strlen(origin) + strlen(delm) + strlen(tail) + 1);
+    memset(ret,0,strlen(ret));
+    strcat(ret,origin);
+    strcat(ret,delm);
+    strcat(ret,tail);
+    return ret;
+}
+
+static char *build_json_item(char *key, char *value) {
+    char *pack_key = packstring(key, "\"");
+    char *pack_value = packstring(value, "\"");
+    char *ret = concatstring(pack_key, ":", pack_value);
+    if (pack_key) free(pack_key);
+    if (pack_value) free(pack_value);
+    return ret;
+}
+
+static int dump_to_file(const char *buffer, size_t size, char *file)
+{
+    FILE *dest = fopen(file, "w");
+    if(fwrite(buffer, size, 1, dest) != 1)
+        return -1;
+    return 0;
+}
+
 jconf_t *read_jconf(const char* file)
 {
 
@@ -111,4 +146,44 @@ jconf_t *read_jconf(const char* file)
     json_value_free(obj);
     return &conf;
 
+}
+
+void dump_jconf(char *conf_path){
+    char* jsonlist[6];
+    //jsonlist[0] = concatstring(packstring("TwitterID", "\""), ":" ,packstring(conf->whitelist, "\""));
+    jsonlist[0] = build_json_item("TwitterID",conf->TwitterID);
+    jsonlist[1] = build_json_item("CONSUMER_KEY",conf->CONSUMER_KEY);
+    jsonlist[2] = build_json_item("CONSUMER_SECRET",conf->CONSUMER_SECRET);
+    jsonlist[3] = build_json_item("OAUTH_TOKEN",conf->OAUTH_TOKEN);
+    jsonlist[4] = build_json_item("OAUTH_TOKEN_SECRET",conf->OAUTH_TOKEN_SECRET);
+    jsonlist[5] = build_json_item("whitelist",conf->whitelist);
+    
+    int j;
+    int stringlen = 0;
+    for(j = 0; j < 6; j++) {
+        stringlen += strlen(jsonlist[j]);
+    }
+    
+    char *all_item = (char *)malloc(stringlen + 5 * 3 + 1);
+    memset(all_item,0, stringlen + 5 * 3 + 1);
+    
+    for(j = 0; j < 5; j++) {
+        strcat(all_item,jsonlist[j]);
+        strcat(all_item,",\r\n\t");
+    }
+    strcat(all_item,jsonlist[5]);
+    
+    for(j = 0; j < 6; j++) {
+        if (jsonlist[j]) free(jsonlist[j]);
+    }
+    
+    char *final_string = (char *)malloc(strlen(all_item) + 2 + 1);
+    strcat(final_string, "{\r\n\t");
+    strcat(final_string, all_item);
+    strcat(final_string, "\r\n}");
+    
+    if(all_item) free(all_item);
+    printf("\n%s\n", final_string);
+    dump_to_file(final_string, strlen(final_string), conf_path);
+    if(final_string) free(final_string);
 }

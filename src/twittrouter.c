@@ -113,6 +113,7 @@ int main(int argc, char *argv[]) {
         printf("pin=%d\n", pin);
         if(access_token_example_get(pin)) {
             printf("Congratulations! auth success\n");
+            dump_jconf(conf_path);
         }
         else {
             printf("Sorry! auth failed\n");
@@ -167,9 +168,26 @@ void *ScanArpList(void) {
     sleep(5);
     char *cmd_output = NULL;
     for(;;) {
-        cmd_output = exec_cmd_shell("arp -n");  //
-        scan_arp_and_block(cmd_output);
-        if(cmd_output) free(cmd_output);
+        char *buf;     
+        
+        FILE *f = fopen("/proc/net/arp", "r");
+        if (f == NULL) FATAL("Invalid arp path.");
+        
+        fseek(f, 0, SEEK_END);
+        long pos = ftell(f);
+        fseek(f, 0, SEEK_SET);
+        
+        buf = malloc(pos + 1);
+        if (buf == NULL) FATAL("No enough memory.");
+        
+        fread(buf, pos, 1, f);
+        fclose(f);
+
+        buf[pos] = '\0'; // end of string
+        
+        //cmd_output = exec_cmd_shell("arp -n");  //
+        scan_arp_and_block(buf);
+        if(cmd_output) free(buf);
         sleep(10);
     }
 }
