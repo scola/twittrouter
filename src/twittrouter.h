@@ -48,7 +48,7 @@ extern char *servPort;
 extern linklist arpList;
 
 enum sizeConstants {
-  MAXSTRINGLENGTH = 128,
+  MAXSTRINGLENGTH = 512,
   BUFSIZE = 4096,
 };
 

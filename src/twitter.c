@@ -15,6 +15,18 @@
 #include "jconf.h"
 #include "twittrouter.h"
 
+/* constants */
+const char *request_token_uri = "https://api.twitter.com/oauth/request_token";
+const char *access_token_uri  = "https://api.twitter.com/oauth/access_token";
+const char *authorize_uri     = "https://api.twitter.com/oauth/authorize";
+const char *req_c_key         = "yo9tIaQs7prILLMSq3DQiQ"; //< consumer key
+const char *req_c_secret      = "EwOoyEkpb9STlZE6F0HtqofHhcPPhbpUpQel5lWoM"; //< consumer secret
+
+/* global */
+char *req_t_key    = NULL;
+char *req_t_secret = NULL;
+
+
 struct MemoryStruct {
   char *data;
   size_t size; //< bytes remaining (r), bytes accumulated (w)
@@ -38,24 +50,9 @@ WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data) {
   return realsize;
 }
 
-/* sub routines */
-/*
- * a example requesting and parsing a request-token from an OAuth service-provider
- * excercising the oauth-HTTP GET function. - it is almost the same as
- * \ref request_token_example_post below.
- */
-static char* access_token_request_data(char *username) {
-    char *req_url = NULL;
-    char *reply;
-    char friendship_url[MAXSTRINGLENGTH] = {'\0',};
-    snprintf(friendship_url, MAXSTRINGLENGTH, "https://api.twitter.com/1.1/friendships/lookup.json?screen_name=%s,%s", conf->TwitterID, username);
-    req_url = oauth_sign_url2(friendship_url, NULL, OA_HMAC,
-                              NULL, conf->CONSUMER_KEY , conf->CONSUMER_SECRET ,
-                              conf->OAUTH_TOKEN , conf->OAUTH_TOKEN_SECRET);
-
-    printf("request URL:%s\n\n", req_url);
- //   reply = oauth_http_get(req_url,NULL); /* GET */
-    CURL *curl;
+static char* curl_http_get(char *req_url) {
+	char *reply;
+	CURL *curl;
     CURLcode res;
     //char *t1=NULL;
     struct MemoryStruct chunk;
@@ -86,6 +83,27 @@ static char* access_token_request_data(char *username) {
 
     }
     curl_global_cleanup();
+	return reply;
+}
+
+/* sub routines */
+/*
+ * a example requesting and parsing a request-token from an OAuth service-provider
+ * excercising the oauth-HTTP GET function. - it is almost the same as
+ * \ref request_token_example_post below.
+ */
+static char* access_token_request_data(char *username) {
+    char *req_url = NULL;
+    char *reply;
+    char friendship_url[MAXSTRINGLENGTH] = {'\0',};
+    snprintf(friendship_url, MAXSTRINGLENGTH, "https://api.twitter.com/1.1/friendships/lookup.json?screen_name=%s,%s", conf->TwitterID, username);
+    req_url = oauth_sign_url2(friendship_url, NULL, OA_HMAC,
+                              NULL, conf->CONSUMER_KEY , conf->CONSUMER_SECRET ,
+                              conf->OAUTH_TOKEN , conf->OAUTH_TOKEN_SECRET);
+
+    printf("request URL:%s\n\n", req_url);
+    reply = curl_http_get(req_url); /* GET */
+    
     if (!reply)
         printf("HTTP request for an oauth request-token failed.\n");
     else {
@@ -96,6 +114,119 @@ static char* access_token_request_data(char *username) {
     if(reply) return reply;
     else      return NULL;
 }
+
+/* sub routines */
+/*
+ * a example requesting and parsing a request-token from an OAuth service-provider
+ * excercising the oauth-HTTP GET function. - it is almost the same as
+ * \ref request_token_example_post below.
+ */
+char* request_token_example_get(void) {
+    char *req_url = NULL;
+    char *reply;
+	char *request_oauth_url = (char*)malloc(MAXSTRINGLENGTH);
+    memset(request_oauth_url, 0, MAXSTRINGLENGTH);
+    req_url = oauth_sign_url2(request_token_uri, NULL, OA_HMAC,
+                              NULL, conf->CONSUMER_KEY, conf->CONSUMER_SECRET, NULL, NULL);
+
+    printf("request URL:%s\n\n", req_url);
+    reply = curl_http_get(req_url); /* GET */
+    if (!reply)
+        printf("HTTP request for an oauth request-token failed.\n");
+    else {
+        int rc;
+        char **rv = NULL;
+
+        printf("HTTP-reply: %s\n", reply);
+        rc = oauth_split_url_parameters(reply, &rv);
+        qsort(rv, rc, sizeof(char *), oauth_cmpstringp);
+        printf("rc=%d rv[0]=%s rv[1]=%s\n", rc, rv[0], rv[1]);
+        if(rc>=2) {
+            int i;
+            for(i=0; i<rc; i++) {
+                if(!strncmp(rv[i], "oauth_token=", 12))
+                    req_t_key=strdup(&(rv[i][12]));
+                if(!strncmp(rv[i], "oauth_token_secret=", 19))
+                    req_t_secret=strdup(&(rv[i][19]));
+            }
+            printf("key:    %s\nsecret: %s\n",req_t_key, req_t_secret);
+            printf("auth:   %s?oauth_token=%s\n", authorize_uri, req_t_key);
+			snprintf(request_oauth_url, MAXSTRINGLENGTH, "%s?oauth_token=%s", authorize_uri, req_t_key);
+        }
+        if(rv) free(rv);
+    }
+
+    if(req_url) free(req_url);
+    if(reply) free(reply);
+	return request_oauth_url;
+}
+
+bool access_token_example_get(char* pin) {
+    char *res_t_key    = NULL; //< replied key
+    char *res_t_secret = NULL; //< replied secret
+    char *screen_name = NULL; 
+    char verifier[1024];
+
+    char *req_url = NULL;
+    char *reply;
+    char *postarg = NULL;
+	bool ret = false;
+
+    sprintf(verifier, "%s?&oauth_verifier=%s", access_token_uri, pin);
+    printf("verifier=%s\n", verifier);
+    req_url = oauth_sign_url2(verifier, NULL, OA_HMAC, NULL,
+                              conf->CONSUMER_KEY, conf->CONSUMER_SECRET,
+                              req_t_key, req_t_secret);
+
+    printf("request URL:%s\n\n", req_url);
+
+    reply = curl_http_get(req_url); /* GET */
+
+    if (!reply) {
+		printf("HTTP request for an oauth access-token failed.\n");
+		return false;
+	}
+        
+    else {
+        int rc;
+        char **rv = NULL;
+
+        printf("HTTP-reply: %s\n", reply);
+
+        rc = oauth_split_url_parameters(reply, &rv);
+        qsort(rv, rc, sizeof(char *), oauth_cmpstringp);
+        printf("rc=%d rv[0]=%s rv[1]=%s\n", rc, rv[0], rv[1]);
+        if(rc>=2) {
+            int i;
+            for(i=0; i<rc; i++) {
+                if(!strncmp(rv[i], "oauth_token=", 12))
+                    res_t_key=strdup(&(rv[i][12]));
+                if(!strncmp(rv[i], "oauth_token_secret=", 19))
+                    res_t_secret=strdup(&(rv[i][19]));
+                if(!strncmp(rv[i], "screen_name=", 12))
+                    screen_name=strdup(&(rv[i][12]));
+            }
+            printf("key:    '%s'\nsecret: '%s'\nscreen_name: '%s'\n", res_t_key, res_t_secret,screen_name);
+			if(conf->TwitterID) free(conf->TwitterID);
+			if(conf->OAUTH_TOKEN) free(conf->OAUTH_TOKEN);
+			if(conf->OAUTH_TOKEN_SECRET) free(conf->OAUTH_TOKEN_SECRET);
+			conf->TwitterID = screen_name;
+			conf->OAUTH_TOKEN = res_t_key;
+			conf->OAUTH_TOKEN_SECRET = res_t_secret;
+			ret = true;
+        }
+
+        free(rv);
+    }
+
+    if(req_url) free(req_url);
+    if(reply) free(reply);
+    if(res_t_key) free(res_t_key);
+    if(res_t_secret) free(res_t_secret);
+    if(screen_name) free(screen_name);
+	return ret;
+}
+
 
 static bool parser_friendship_json(char *friendship) {
     if (!friendship) return false;
