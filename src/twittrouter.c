@@ -31,6 +31,7 @@ static void create_thread(void *thread_func,void *threadArgs) {
 
 int main(int argc, char *argv[]) {
     int pid_flags = 0;
+    int auth_flags = 0;
     char c;
     char *conf_path = DEFAULT_CONFIG_PATH;
     char *TwitterID = NULL;
@@ -68,6 +69,9 @@ int main(int argc, char *argv[]) {
                 pid_flags = 1;
                 pid_path = optarg;
                 break;
+            case 'a':
+                auth_flags = 1;
+                break;    
             default:
                 break;
         }
@@ -99,7 +103,23 @@ int main(int argc, char *argv[]) {
         }
         exit(EXIT_SUCCESS);
     }
-
+    
+    if (auth_flags)
+    {
+        int pin;
+        request_token_example_get();
+        printf("PIN: ");
+        scanf("%d", &pin);
+        printf("pin=%d\n", pin);
+        if(access_token_example_get(pin)) {
+            printf("Congratulations! auth success\n");
+        }
+        else {
+            printf("Sorry! auth failed\n");
+        }
+        exit(EXIT_SUCCESS);
+    }  
+    
     if (pid_flags)
     {
         demonize(pid_path);

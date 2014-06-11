@@ -127,16 +127,12 @@ void usage()
     printf("twittrouter --version %s\n\n", VERSION);
     printf("  maintained by Scola <shaozheng.wu@gmail.com>\n\n");
     printf("  usage:\n\n");
-    printf("    please edit your config file in /etc/config/twittrouter.json firstly\n");
-    printf("    you must create your own twitter app(https://dev.twitter.com/apps)\n");
-    printf("    and add the Consumer key,secret Access token,secret in the twittrouter.json\n");
-    printf("\n");
-    printf("    TwitterID:            your twitter username\n");
-    printf("    CONSUMER_KEY:         your twitter app consumer key\n");
-    printf("    CONSUMER_SECRET:      your twitter app consumer secret\n");
-    printf("    OAUTH_TOKEN:          your twitter app authorization token\n");
-    printf("    OAUTH_TOKEN_SECRET:   your twitter app authorization token secret\n");
-    printf("    whitelist:            your own device mac address that split by '|'\n");
+    printf("    Firstly,test whether the default oauth works normally\n");
+    printf("    Try to run [twittrouter -u kfc]\n");
+    printf("    Second,authorize your own twitter account\n");
+    printf("    Try to run [twittrouter -a]\n");
+    printf("    If the two step above works normally,then run [twittrouter]\n");
+    printf("    Optional,you can add your own device mac address into whitelist of /etc/config/twittrouter.json\n");
     printf("\n");
     printf("    [-p <servPort>]       server port,the default value is 9999\n");
     printf("    [-c <config path>]    twittrouter.json path,default /etc/config/twittrouter.json\n");
@@ -144,6 +140,7 @@ void usage()
     printf("    [-h <help>]           get the usage of the twittrouter\n");
     printf("    [-u <username>]       just use to test the oauth and network config\n");
     printf("    [-f <pid_file>]       valid path to the pid file\n");
+    printf("    [-a <authorize>]      authorize and get twitter acess token\n");
     printf("\n");
 }
 

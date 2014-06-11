@@ -13,6 +13,7 @@
 #include "oauth.h"
 #include "xmalloc.h"
 #include "jconf.h"
+#include "utils.h"
 #include "twittrouter.h"
 
 /* constants */
@@ -121,18 +122,18 @@ static char* access_token_request_data(char *username) {
  * excercising the oauth-HTTP GET function. - it is almost the same as
  * \ref request_token_example_post below.
  */
-char* request_token_example_get(void) {
+void request_token_example_get(void) {
     char *req_url = NULL;
     char *reply;
-	char *request_oauth_url = (char*)malloc(MAXSTRINGLENGTH);
-    memset(request_oauth_url, 0, MAXSTRINGLENGTH);
+
     req_url = oauth_sign_url2(request_token_uri, NULL, OA_HMAC,
                               NULL, conf->CONSUMER_KEY, conf->CONSUMER_SECRET, NULL, NULL);
 
     printf("request URL:%s\n\n", req_url);
     reply = curl_http_get(req_url); /* GET */
     if (!reply)
-        printf("HTTP request for an oauth request-token failed.\n");
+        printf("Please check your network,maybe it's blocked by GFW\n");
+        FATAL("HTTP request for an oauth request-token failed.\n");
     else {
         int rc;
         char **rv = NULL;
@@ -150,18 +151,18 @@ char* request_token_example_get(void) {
                     req_t_secret=strdup(&(rv[i][19]));
             }
             printf("key:    %s\nsecret: %s\n",req_t_key, req_t_secret);
-            printf("auth:   %s?oauth_token=%s\n", authorize_uri, req_t_key);
-			snprintf(request_oauth_url, MAXSTRINGLENGTH, "%s?oauth_token=%s", authorize_uri, req_t_key);
+            printf("*****Please open the url below by your browser*****\n");
+            printf("    %?oauth_callback=oob&oauth_token=%s\n", authorize_uri, req_t_key);
+            printf("*****Please open the url above by your browser*****\n");
         }
         if(rv) free(rv);
     }
 
     if(req_url) free(req_url);
     if(reply) free(reply);
-	return request_oauth_url;
 }
 
-bool access_token_example_get(char* pin) {
+bool access_token_example_get(int pin) {
     char *res_t_key    = NULL; //< replied key
     char *res_t_secret = NULL; //< replied secret
     char *screen_name = NULL; 
@@ -172,7 +173,7 @@ bool access_token_example_get(char* pin) {
     char *postarg = NULL;
 	bool ret = false;
 
-    sprintf(verifier, "%s?&oauth_verifier=%s", access_token_uri, pin);
+    sprintf(verifier, "%s?&oauth_verifier=%d", access_token_uri, pin);
     printf("verifier=%s\n", verifier);
     req_url = oauth_sign_url2(verifier, NULL, OA_HMAC, NULL,
                               conf->CONSUMER_KEY, conf->CONSUMER_SECRET,
@@ -183,10 +184,9 @@ bool access_token_example_get(char* pin) {
     reply = curl_http_get(req_url); /* GET */
 
     if (!reply) {
-		printf("HTTP request for an oauth access-token failed.\n");
-		return false;
-	}
-        
+		printf("Please check your network,maybe it's blocked by GFW\n");
+        FATAL("HTTP request for an oauth request-token failed.\n");
+	}        
     else {
         int rc;
         char **rv = NULL;
@@ -206,14 +206,16 @@ bool access_token_example_get(char* pin) {
                 if(!strncmp(rv[i], "screen_name=", 12))
                     screen_name=strdup(&(rv[i][12]));
             }
-            printf("key:    '%s'\nsecret: '%s'\nscreen_name: '%s'\n", res_t_key, res_t_secret,screen_name);
-			if(conf->TwitterID) free(conf->TwitterID);
-			if(conf->OAUTH_TOKEN) free(conf->OAUTH_TOKEN);
-			if(conf->OAUTH_TOKEN_SECRET) free(conf->OAUTH_TOKEN_SECRET);
-			conf->TwitterID = screen_name;
-			conf->OAUTH_TOKEN = res_t_key;
-			conf->OAUTH_TOKEN_SECRET = res_t_secret;
-			ret = true;
+            if(res_t_key && res_t_secret && screen_name) {
+                ret = true;
+                printf("key:    '%s'\nsecret: '%s'\nscreen_name: '%s'\n", res_t_key, res_t_secret,screen_name);
+                if(conf->TwitterID) free(conf->TwitterID);
+                if(conf->OAUTH_TOKEN) free(conf->OAUTH_TOKEN);
+                if(conf->OAUTH_TOKEN_SECRET) free(conf->OAUTH_TOKEN_SECRET);
+                conf->TwitterID = screen_name;
+                conf->OAUTH_TOKEN = res_t_key;
+                conf->OAUTH_TOKEN_SECRET = res_t_secret;                
+            }			
         }
 
         free(rv);
