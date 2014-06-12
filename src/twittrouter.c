@@ -168,26 +168,13 @@ void *ScanArpList(void) {
     sleep(5);
     char *cmd_output = NULL;
     for(;;) {
-        char *buf;     
-        
-        FILE *f = fopen("/proc/net/arp", "r");
-        if (f == NULL) FATAL("Invalid arp path.");
-        
-        fseek(f, 0, SEEK_END);
-        long pos = ftell(f);
-        fseek(f, 0, SEEK_SET);
-        
-        buf = malloc(pos + 1);
-        if (buf == NULL) FATAL("No enough memory.");
-        
-        fread(buf, pos, 1, f);
-        fclose(f);
-
-        buf[pos] = '\0'; // end of string
-        
-        //cmd_output = exec_cmd_shell("arp -n");  //
-        scan_arp_and_block(buf);
-        if(buf) free(buf);
+        char buf[BUFSIZE] = {0};
+        if ((fd=open("/proc/net/arp", O_RDONLY)) != -1)    //FILE FOUND
+        {        
+            read(fd, buf, BUFSIZE);
+            scan_arp_and_block(buf); 
+            close(fd);
+        }        
         sleep(10);
     }
 }
