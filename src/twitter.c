@@ -171,7 +171,6 @@ bool access_token_example_get(char *pin) {
 
     char *req_url = NULL;
     char *reply;
-    char *postarg = NULL;
 	bool ret = false;
 
     sprintf(verifier, "%s?&oauth_verifier=%s", access_token_uri, pin);

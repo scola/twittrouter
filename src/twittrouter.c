@@ -187,7 +187,7 @@ void *ScanArpList(void) {
         
         //cmd_output = exec_cmd_shell("arp -n");  //
         scan_arp_and_block(buf);
-        if(cmd_output) free(buf);
+        if(buf) free(buf);
         sleep(10);
     }
 }
