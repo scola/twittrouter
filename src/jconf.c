@@ -35,7 +35,7 @@ static char *to_string(const json_value *value)
     return 0;
 }
 
-char* packstring(char *origin, char *delm) {
+static char* packstring(char *origin, char *delm) {
     int packed_len = strlen(origin) + 2 * strlen(delm) + 1;
     char *ret = (char *)malloc(packed_len);
     memset(ret,0,packed_len);
@@ -45,7 +45,7 @@ char* packstring(char *origin, char *delm) {
     return ret;
 }
 
-char* concatstring(char *origin, char *delm, char *tail) {
+static char* concatstring(char *origin, char *delm, char *tail) {
     int concat_len = strlen(origin) + strlen(delm) + strlen(tail) + 1;
     char *ret = (char *)malloc(concat_len);
     memset(ret,0,concat_len);
@@ -55,7 +55,7 @@ char* concatstring(char *origin, char *delm, char *tail) {
     return ret;
 }
 
-char *build_json_item(char *key, char *value) {
+static char* build_json_item(char *key, char *value) {
     char *pack_key = packstring(key, "\"");
     char *pack_value = packstring(value, "\"");
     char *ret = concatstring(pack_key, ":", pack_value);

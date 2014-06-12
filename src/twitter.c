@@ -224,9 +224,9 @@ bool access_token_example_get(char *pin) {
 
     if(req_url) free(req_url);
     if(reply) free(reply);
-    if(res_t_key) free(res_t_key);
-    if(res_t_secret) free(res_t_secret);
-    if(screen_name) free(screen_name);
+    //if(res_t_key) free(res_t_key);
+    //if(res_t_secret) free(res_t_secret);
+    //if(screen_name) free(screen_name);
 	return ret;
 }
 
