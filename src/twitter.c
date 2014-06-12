@@ -163,7 +163,7 @@ void request_token_example_get(void) {
     if(reply) free(reply);
 }
 
-bool access_token_example_get(int pin) {
+bool access_token_example_get(char *pin) {
     char *res_t_key    = NULL; //< replied key
     char *res_t_secret = NULL; //< replied secret
     char *screen_name = NULL; 
@@ -174,7 +174,7 @@ bool access_token_example_get(int pin) {
     char *postarg = NULL;
 	bool ret = false;
 
-    sprintf(verifier, "%s?&oauth_verifier=%d", access_token_uri, pin);
+    sprintf(verifier, "%s?&oauth_verifier=%s", access_token_uri, pin);
     printf("verifier=%s\n", verifier);
     req_url = oauth_sign_url2(verifier, NULL, OA_HMAC, NULL,
                               conf->CONSUMER_KEY, conf->CONSUMER_SECRET,

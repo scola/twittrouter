@@ -40,7 +40,7 @@ bool get_friendship(char *username);
 // request oauth url
 void request_token_example_get(void);
 // get access token
-bool access_token_example_get(int pin);
+bool access_token_example_get(char *pin);
 //execute the shell command
 char* exec_cmd_shell(char *cmd);
 //scan arp to get connected client and block the one not in the whitelist

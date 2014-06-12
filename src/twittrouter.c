@@ -106,11 +106,11 @@ int main(int argc, char *argv[]) {
     
     if (auth_flags)
     {
-        int pin;
+        char pin[10] = {0};
         request_token_example_get();
         printf("PIN: ");
-        scanf("%d", &pin);
-        printf("pin=%d\n", pin);
+        scanf("%s", pin);
+        printf("pin=%s\n", pin);
         if(access_token_example_get(pin)) {
             printf("Congratulations! auth success\n");
             dump_jconf(conf_path);

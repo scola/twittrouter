@@ -35,9 +35,10 @@ static char *to_string(const json_value *value)
     return 0;
 }
 
-static char* packstring(char *origin, char *delm) {
-    char *ret = (char *)malloc(strlen(origin) + 2 * strlen(delm) + 1);
-    memset(ret,0,strlen(ret));
+char* packstring(char *origin, char *delm) {
+    int packed_len = strlen(origin) + 2 * strlen(delm) + 1;
+    char *ret = (char *)malloc(packed_len);
+    memset(ret,0,packed_len);
     strcat(ret,delm);
     strcat(ret,origin);
     strcat(ret,delm);
@@ -45,15 +46,16 @@ static char* packstring(char *origin, char *delm) {
 }
 
 char* concatstring(char *origin, char *delm, char *tail) {
-    char *ret = (char *)malloc(strlen(origin) + strlen(delm) + strlen(tail) + 1);
-    memset(ret,0,strlen(ret));
+    int concat_len = strlen(origin) + strlen(delm) + strlen(tail) + 1;
+    char *ret = (char *)malloc(concat_len);
+    memset(ret,0,concat_len);
     strcat(ret,origin);
     strcat(ret,delm);
     strcat(ret,tail);
     return ret;
 }
 
-static char *build_json_item(char *key, char *value) {
+char *build_json_item(char *key, char *value) {
     char *pack_key = packstring(key, "\"");
     char *pack_value = packstring(value, "\"");
     char *ret = concatstring(pack_key, ":", pack_value);
@@ -150,6 +152,7 @@ jconf_t *read_jconf(const char* file)
 
 void dump_jconf(char *conf_path){
     char* jsonlist[6];
+    extern jconf_t *conf;
     //jsonlist[0] = concatstring(packstring("TwitterID", "\""), ":" ,packstring(conf->whitelist, "\""));
     jsonlist[0] = build_json_item("TwitterID",conf->TwitterID);
     jsonlist[1] = build_json_item("CONSUMER_KEY",conf->CONSUMER_KEY);
@@ -163,9 +166,9 @@ void dump_jconf(char *conf_path){
     for(j = 0; j < 6; j++) {
         stringlen += strlen(jsonlist[j]);
     }
-    
-    char *all_item = (char *)malloc(stringlen + 5 * 3 + 1);
-    memset(all_item,0, stringlen + 5 * 3 + 1);
+    int total_len = stringlen + 5 * 4 + 1;
+    char *all_item = (char *)malloc(total_len);
+    memset(all_item,0, total_len);
     
     for(j = 0; j < 5; j++) {
         strcat(all_item,jsonlist[j]);
@@ -177,7 +180,8 @@ void dump_jconf(char *conf_path){
         if (jsonlist[j]) free(jsonlist[j]);
     }
     
-    char *final_string = (char *)malloc(strlen(all_item) + 2 + 1);
+    char *final_string = (char *)malloc(total_len + 4 + 3 + 1);
+    memset(final_string, 0, total_len + 4 + 3 + 1);
     strcat(final_string, "{\r\n\t");
     strcat(final_string, all_item);
     strcat(final_string, "\r\n}");
