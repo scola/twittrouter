@@ -3,6 +3,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include "twittrouter.h"
 #include "utils.h"
@@ -166,8 +167,8 @@ void *ScanArpList(void) {
     // Guarantees that thread resources are deallocated upon return
     pthread_detach(pthread_self());
     sleep(5);
-    char *cmd_output = NULL;
     for(;;) {
+        int fd;
         char buf[BUFSIZE] = {0};
         if ((fd=open("/proc/net/arp", O_RDONLY)) != -1)    //FILE FOUND
         {        
