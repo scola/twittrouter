@@ -1,9 +1,11 @@
 Twittrouter
 ===========
-Twittrouter is used to verify your wifi client by twitter friends.It runs on [openwrt](https://openwrt.org/) router.Maybe it also support on dd-wrt or tomato router,I have not tested it.
+Twittrouter is used to verify your wifi client by twitter friends.It runs on [openwrt](https://openwrt.org/) router.Maybe it also support on dd-wrt or tomato router,I have not tested it.  
 
-Usage
------
+[中文说明](http://scola.github.io/update-twittrouter-about-auth-and-arp-method/)
+
+How to build
+------------
 Build the source code,this project requires [liboauth](http://liboauth.sourceforge.net/) library,but I have include in the source code for static build
 ```bash
 # At OpenWRT build root
@@ -20,10 +22,12 @@ make -j
 # Build the package
 make V=s package/twittrouter/compile
 ```
-If you trust me,you can skip the build step and [download the ipk package here](https://github.com/scola/twittrouter/tree/master/release) and install.You must config your source address correctly in /etc/opkg.conf. net-tools-arp and iptables are required
+
+Usage
+-----
+If you trust me,you can skip the build step and [download the ipk package here](https://github.com/scola/twittrouter/tree/master/release) and install.You must config your source address correctly in /etc/opkg.conf.iptables are required
 
     opkg install iptables
-    opkg install net-tools-arp
     
 and the install twittrouter ipk packages,it will automatically download and install the required library(libcurl,libpthread)
 
@@ -31,29 +35,19 @@ and the install twittrouter ipk packages,it will automatically download and inst
 
 Get the usage of twittrouter
 
-    twittrouter -h
-    
-you must create your own [twitter app](https://dev.twitter.com/apps) and add the Consumer key,secret Access token,secret and your twitter id in the config.json
+    twittrouter -h 
 
 Your own devices need not to be verified,so just add it into whitelist.00:00:00:00:00:00 is invalid mac address,so keep it in whitelist.You could append your device mac address that's split by '|'.
 
 Edit /etc/conf/twittrouter.json
-
-    "TwitterID":"your-twitter-id",
-    "CONSUMER_KEY":"",
-    "CONSUMER_SECRET":"",
-    "OAUTH_TOKEN":"",
-    "OAUTH_TOKEN_SECRET":"",
+    
     "whitelist":"00:00:00:00:00:00|d8:57:ef:33:86:93"
 
 Run this program,and I recommend you add this program when system startup.
-
-    twittrouter #you must config twittrouter.json correctly
-
-or
-
-    /etc/init.d/twittrouter start
-    ln -s /etc/init.d/twittrouter /etc/rc.d/S98twittrouter  #execute twittrouter when system startup
+    
+    twittrouter -a   #authorize your own twitter username
+    twittrouter      #run this application
+    /etc/init.d/twittrouter enable  #execute twittrouter when system startup
 
 Chinese user only
 -----------------
