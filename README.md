@@ -2,7 +2,7 @@ Twittrouter
 ===========
 Twittrouter is used to verify your wifi client by twitter friends.It runs on [openwrt](https://openwrt.org/) router.Maybe it also support on dd-wrt or tomato router,I have not tested it.
 
-[中文说明](http://scola.github.io/update-twittrouter-about-auth-and-arp-method/)
+[中文说明][http://scola.github.io/update-twittrouter-about-auth-and-arp-method/]
 
 How to build
 ------------
@@ -30,7 +30,8 @@ If you trust me,you can skip the build step and [download the ipk package here](
     opkg install iptables
     
 and the install twittrouter ipk packages,it will automatically download and install the required library(libcurl,libpthread)
-
+    
+    opkg update
     opkg install twittrouter
 
 Get the usage of twittrouter
