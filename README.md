@@ -2,7 +2,7 @@ Twittrouter
 ===========
 Twittrouter is used to verify your wifi client by twitter friends.It runs on [openwrt](https://openwrt.org/) router.Maybe it also support on dd-wrt or tomato router,I have not tested it.
 
-[中文说明][http://scola.github.io/update-twittrouter-about-auth-and-arp-method/]
+[涓枃璇存槑][http://scola.github.io/update-twittrouter-about-auth-and-arp-method/]
 
 How to build
 ------------
