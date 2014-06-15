@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 
     opterr = 0;
 
-    while ((c = getopt (argc, argv, "p:r:c:t:u:hfa")) != -1) {
+    while ((c = getopt (argc, argv, "p:r:c:t:u:f:ha")) != -1) {
         switch (c)
         {
             case 'r':
