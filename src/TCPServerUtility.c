@@ -164,7 +164,9 @@ int SetupTCPServerSocket(const char *service) {
                 addr->ai_protocol);
         if (servSock < 0)
             continue;             // Socket creation failed; try next address
-
+            
+        int opt = 1;
+        setsockopt(servSock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
         // Bind to the local address and set socket to listen
         if ((bind(servSock, addr->ai_addr, addr->ai_addrlen) == 0) &&
                 (listen(servSock, MAXPENDING) == 0)) {
