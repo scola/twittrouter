@@ -139,7 +139,6 @@ void usage()
     printf("    [-r <root>]           html file path for the server,default /www/twittrouter\n");
     printf("    [-h <help>]           get the usage of the twittrouter\n");
     printf("    [-u <username>]       just use to test the oauth and network config\n");
-    printf("    [-f <pid_file>]       valid path to the pid file\n");
     printf("    [-a <authorize>]      authorize and get twitter acess token\n");
     printf("\n");
 }

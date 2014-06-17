@@ -6,10 +6,10 @@ STOP=98
 
 start() {
     echo "starting twittrouter..."
-    /usr/bin/twittrouter -f /var/run/twittrouter.pid
+    /usr/bin/twittrouter
 }
 
 stop() {
     echo "twittrouter stopped."
-    kill -9 `cat /var/run/twittrouter.pid`
+    ps |grep twittrouter |awk '{print $1}'|xargs kill -9
 }
