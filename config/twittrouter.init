@@ -9,11 +9,11 @@ PORT=9999
 
 start() {
     echo "starting twittrouter..."
-        if [ -f $PIDFILE ]
-            then
-                echo "already started: $PIDFILE exists"
-                exit 1
-	fi
+    if [ -f $PIDFILE ]
+        then
+            echo "already started: $PIDFILE exists"
+            exit 1
+    fi
     twittrouter -p $PORT > /tmp/log/twittrouter.log &
     echo $! > $PIDFILE
 }
