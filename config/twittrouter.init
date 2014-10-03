@@ -3,13 +3,32 @@
 
 START=98
 STOP=98
+EXTRA_COMMANDS="restart"
+PIDFILE='/tmp/twittrouter.pid'
+PORT=9999
 
 start() {
     echo "starting twittrouter..."
-    /usr/bin/twittrouter
+        if [ -f $PIDFILE ]
+            then
+                echo "already started: $PIDFILE exists"
+                exit 1
+	fi
+    twittrouter -p $PORT > /tmp/log/twittrouter.log &
+    echo $! > $PIDFILE
 }
 
 stop() {
     echo "twittrouter stopped."
-    ps |grep twittrouter |awk '{print $1}'|xargs kill -9
+    for ip in `iptables -t nat -L PREROUTING -n | grep "redir ports $PORT"|awk '{print $4}'`
+    do
+        iptables -t nat -D PREROUTING -p tcp -s $ip --dport 80 -j REDIRECT --to-ports $PORT
+    done   	
+    kill `cat $PIDFILE`
+    rm $PIDFILE
+}
+
+restart() {
+    stop
+    start
 }
