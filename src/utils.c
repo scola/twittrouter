@@ -131,7 +131,7 @@ void usage()
     printf("    Try to run [twittrouter -u kfc]\n");
     printf("    Second,authorize your own twitter account\n");
     printf("    Try to run [twittrouter -a]\n");
-    printf("    If the two step above works normally,then run [twittrouter]\n");
+    printf("    If the two step above works normally,then run [/etc/init.d/twittrouter start]\n");
     printf("    Optional,you can add your own device mac address into whitelist of /etc/config/twittrouter.json\n");
     printf("\n");
     printf("    [-p <servPort>]       server port,the default value is 9999\n");
