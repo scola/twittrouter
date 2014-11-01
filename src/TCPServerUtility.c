@@ -12,6 +12,7 @@
 #include "utils.h"
 
 static const int MAXPENDING = 5; // Maximum outstanding connection requests
+static void handle_http_get(int clntSocket, char* file); 
 
 static char* get_twitter_id(int clntSocket, char *poststr, char *user) {
     if(!poststr) return NULL;
@@ -32,6 +33,9 @@ static char* get_twitter_id(int clntSocket, char *poststr, char *user) {
     printf("\n*******content_length_value = %s*******\n",content_length_value);
     if (content_length_value[0] == '\0') return NULL;
     int length = atoi(content_length_value);
+    if(length > TWITTER_USERNAME_MAX_LEN) {
+        return NULL;
+    }
 
     char *username = strstr(poststr,"uname=");
     char buffer[BUFSIZE] = {'\0',};
@@ -43,7 +47,7 @@ static char* get_twitter_id(int clntSocket, char *poststr, char *user) {
             return NULL;
         }
         printf("**********get username start**********\n");
-        printf("%s",buffer);
+        printf("%s\n",buffer);
         printf("**********get username finished**********\n");
         username = strstr(buffer,"uname=");
     }
@@ -60,6 +64,7 @@ static char* get_twitter_id(int clntSocket, char *poststr, char *user) {
             user[j] = *(word + j);
             j++;
         } else {
+            handle_http_get(clntSocket, "/VERIFY_FAILED.html");
             return NULL;
         }
     }
@@ -108,13 +113,6 @@ static void handle_http_get(int clntSocket, char* file) {
 }
 
 static void handle_http_post(int clntSocket, char *username) {
-    //char *ip;
-    if (!conf) return;
-    if (username == NULL) {
-        handle_http_get(clntSocket, "/VERIFY_FAILED.html");
-        return;
-    }
-
     if(get_friendship(username)) {
         handle_http_get(clntSocket, "/VERIFY_OK.html");
         sleep(1);
@@ -240,7 +238,8 @@ void HandleTCPClient(int clntSocket) {
     } else if (strncmp(buffer, "POST", 4) == 0){
         char friend[TWITTER_USERNAME_MAX_LEN] = {'\0',};
         char *friend_id = get_twitter_id(clntSocket, buffer, friend);
-        handle_http_post(clntSocket, friend_id);
+        if(friend_id)
+            handle_http_post(clntSocket, friend_id);
     }
 
     shutdown(clntSocket, SHUT_RDWR); //All further send and recieve operations are DISABLED...
