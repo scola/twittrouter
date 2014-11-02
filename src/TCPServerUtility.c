@@ -14,7 +14,7 @@
 static const int MAXPENDING = 5; // Maximum outstanding connection requests
 static void handle_http_get(int clntSocket, char* file); 
 
-static char* get_twitter_id(int clntSocket, char *poststr, char *user) {
+static char* get_twitter_id(int clntSocket, char *poststr, char *user, ssize_t buffer_len) {
     if(!poststr) return NULL;
     char *content_length = strstr(poststr, "Content-Length");
     if(!content_length) return NULL;
@@ -30,31 +30,41 @@ static char* get_twitter_id(int clntSocket, char *poststr, char *user) {
         }
         i++;
     }
-    printf("\n*******content_length_value = %s*******\n",content_length_value);
+    LOGD("content_length_value = %s",content_length_value);
     if (content_length_value[0] == '\0') return NULL;
     int length = atoi(content_length_value);
-    if(length > TWITTER_USERNAME_MAX_LEN) {
+    if(length - 6 > TWITTER_USERNAME_MAX_LEN) {
         return NULL;
     }
 
     char *username = strstr(poststr,"uname=");
     char buffer[BUFSIZE] = {'\0',};
+    char *crlf = strstr(poststr,"\r\n\r\n");
+    LOGD("first recv length = %d", buffer_len);
+    if(crlf != NULL && crlf - poststr + 4 + length <= buffer_len && username == NULL) {
+        LOGD("expect length = %d", crlf - poststr + 4 + length);
+        return NULL;
+    }
 
-    while(username == NULL) {
+    if(username == NULL) {
         ssize_t numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
         if (numBytesRcvd <= 0){
             ERROR("recv() failed");
             return NULL;
         }
-        printf("**********get username start**********\n");
-        printf("%s\n",buffer);
-        printf("**********get username finished**********\n");
+        LOGD("get username start");
+        LOGD("%s",buffer);
+        LOGD("get username finished");
         username = strstr(buffer,"uname=");
+        if(username == NULL) return NULL;
+    }
+
+    if(length <= 6) {
+        handle_http_get(clntSocket, "/VERIFY_FAILED.html");
+        return NULL;
     }
 
     int j = 0;
-
-    if(length <= 6 || length - 6 > TWITTER_USERNAME_MAX_LEN) return NULL;
     char *word = username + 6;
     while(j + 6 < length) {
         if(*(word + j) == '_' ||
@@ -69,7 +79,7 @@ static char* get_twitter_id(int clntSocket, char *poststr, char *user) {
         }
     }
 
-    printf("a friend of twitter %s is verifying...\n", user);
+    LOGD("a friend of twitter %s is verifying...\n", user);
     return user;
 }
 
@@ -87,7 +97,7 @@ static void handle_http_get(int clntSocket, char* file) {
 
     strcpy(path, root);
     strcpy(&path[strlen(root)], file);
-    printf("file: %s\n", path);
+    LOGD("response to client and send file: %s", path);
 
     if ((fd=open(path, O_RDONLY)) != -1)    //FILE FOUND
     {
@@ -123,7 +133,7 @@ static void handle_http_post(int clntSocket, char *username) {
             ERROR("getsockname() failed");
         char *sock_addr = PrintSocketAddress((struct sockaddr *) &localAddr, stdout, 1);
         if(sock_addr) {
-            printf("********client sock_addr = %s***********\n",sock_addr);
+            LOGD("client sock_addr = %s",sock_addr);
 
             linklist sock_addr_node = Query(arpList,sock_addr);
             if(sock_addr_node && sock_addr_node->ipType == BLOCKED_FLAG) {
@@ -131,7 +141,7 @@ static void handle_http_post(int clntSocket, char *username) {
                 sprintf(iptable_unblock_cmd,"iptables -t nat -D PREROUTING -s %s -p tcp --dport 80 -j REDIRECT --to-ports %s", sock_addr, servPort);
                 char *block_cmd_output = exec_cmd_shell(iptable_unblock_cmd);
                 if(!block_cmd_output) free(block_cmd_output);
-                printf("authed client ip address %s \n",sock_addr);
+                LOGD("authed client ip address %s",sock_addr);
                 Update(sock_addr_node,OAUTHED_FLAG);
             }
             free(sock_addr);
@@ -221,9 +231,9 @@ void HandleTCPClient(int clntSocket) {
         close(clntSocket);
         return;
     }
-    printf("**********recv start**********\n");
+    LOGD("first recv start\n");
     printf("%s",buffer);
-    printf("**********recv finished**********\n");
+    LOGD("recv finished\n");
 
     if (strstr(buffer, "HTTP/1.") == NULL)
     {
@@ -235,11 +245,11 @@ void HandleTCPClient(int clntSocket) {
             req_file = "/BASEHTML.html";
         }
         handle_http_get(clntSocket, req_file);
-    } else if (strncmp(buffer, "POST", 4) == 0){
-        char friend[TWITTER_USERNAME_MAX_LEN] = {'\0',};
-        char *friend_id = get_twitter_id(clntSocket, buffer, friend);
-        if(friend_id)
-            handle_http_post(clntSocket, friend_id);
+    } else if (strncmp(buffer, "POST / ", 7) == 0){
+            char friend[TWITTER_USERNAME_MAX_LEN] = {'\0',};
+            char *friend_id = get_twitter_id(clntSocket, buffer, friend, numBytesRcvd);
+            if(friend_id)
+                handle_http_post(clntSocket, friend_id);
     }
 
     shutdown(clntSocket, SHUT_RDWR); //All further send and recieve operations are DISABLED...

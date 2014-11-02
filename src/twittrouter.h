@@ -7,7 +7,7 @@
 
 #include "jconf.h"
 
-#define VERSION "0.1.3"
+#define VERSION "0.1.4"
 
 #define TWITTER_USERNAME_MAX_LEN 20
 

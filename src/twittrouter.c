@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
     
     //we need to create a thread to scan arp list and block some ip.
     arpList = CreatEmptyLink();
-    printf("server listening at port %s...\n",servPort);
+    LOGD("server listening at port %s...\n",servPort);
 
     int servSock = SetupTCPServerSocket(servPort);
     if (servSock < 0)

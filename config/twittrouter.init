@@ -14,7 +14,7 @@ start() {
             echo "already started: $PIDFILE exists"
             exit 1
     fi
-    twittrouter -p $PORT > /tmp/log/twittrouter.log &
+    twittrouter -p $PORT >/tmp/log/twittrouter.log 2>&1 &
     echo $! > $PIDFILE
 }
 

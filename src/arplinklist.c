@@ -8,6 +8,7 @@
 
 #include "twittrouter.h"
 #include "xmalloc.h"
+#include "utils.h"
 
 linklist CreatEmptyLink ( )      // creat an empty link;return the head dress of the link
 {
@@ -38,7 +39,7 @@ linklist Query (linklist p,char* ipaddr ) {
 
 static void CheckList (linklist p) {
     while (p->next) {
-        printf("the current list ipaddr == %s,ipType = %d \n",p->next->ipaddr,p->next->ipType);
+        LOGD("the current list ipaddr == %s,ipType = %d \n",p->next->ipaddr,p->next->ipType);
         p = p->next;
     }
 }
@@ -108,7 +109,7 @@ void scan_arp_and_block(char *arpOutput) {
                 sprintf(iptable_block_cmd,"iptables -t nat -I PREROUTING -s %s -p tcp --dport 80 -j REDIRECT --to-ports %s", ip, servPort);
                 char *block_cmd_output = exec_cmd_shell(iptable_block_cmd);
                 if(!block_cmd_output) free(block_cmd_output);
-                printf("blocked ip addr %s \n",ip);
+                LOGD("blocked ip addr %s \n",ip);
             }
         }
     }
