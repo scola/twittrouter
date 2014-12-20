@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/select.h>
+#include <pthread.h>
 
 #include "twittrouter.h"
 #include "utils.h"
@@ -12,6 +13,20 @@ jconf_t *conf = NULL;
 char *root = NULL;
 char *servPort = NULL;
 linklist arpList = NULL;
+
+void *ThreadMain(void *arg); // Main program of a thread
+// Structure of arguments to pass to client thread
+struct ThreadArgs {
+    int clntSock; // Socket descriptor for client
+};
+
+static void create_thread(void *thread_func,void *threadArgs) {
+    pthread_t threadID;
+    int returnValue = pthread_create(&threadID, NULL, thread_func, threadArgs);
+    if (returnValue != 0)
+        FATAL("pthread_create() failed");
+    printf("with thread %ld\n", (long int) threadID);
+}
 
 int main(int argc, char *argv[]) {
     int auth_flags = 0;
@@ -131,7 +146,16 @@ int main(int argc, char *argv[]) {
         
         if(FD_ISSET(servSock, &readset)) {
             int clntSock = AcceptTCPConnection(servSock);
-            HandleTCPClient(clntSock);
+            // Create separate memory for client argument
+            struct ThreadArgs *threadArgs = (struct ThreadArgs *) malloc(
+                 sizeof(struct ThreadArgs)
+                );
+            if (threadArgs == NULL)
+                FATAL("malloc() failed");
+            threadArgs->clntSock = clntSock;
+           
+            // Create client thread
+            create_thread(ThreadMain,(void *)threadArgs);
         }
         if(loop_count % 10 == 0){
             int fd;
@@ -147,4 +171,16 @@ int main(int argc, char *argv[]) {
         loop_count++;
     }
     // NOT REACHED
+}
+
+void *ThreadMain(void *threadArgs) {
+    // Guarantees that thread resources are deallocated upon return
+    pthread_detach(pthread_self());
+        
+    // Extract socket file descriptor from argument
+    int clntSock = ((struct ThreadArgs *) threadArgs)->clntSock;
+    free(threadArgs); // Deallocate memory for argument
+      
+    HandleTCPClient(clntSock);
+    return (NULL);
 }
